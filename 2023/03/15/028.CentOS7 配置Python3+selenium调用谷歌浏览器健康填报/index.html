@@ -1,0 +1,647 @@
+<!DOCTYPE html>
+<html lang="zh-Hans">
+
+<head>
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+<meta name="x5-fullscreen" content="true">
+<meta name="full-screen" content="yes">
+<meta name="theme-color" content="#317EFB" />
+<meta content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=0" name="viewport">
+<meta name="description" content="腾讯云服务器，系统CentOS7，Python自带2.7，版本过低。无法满足需求，本文记录下安装Python3和谷歌浏览器驱动，配合selenium实现体温填报系统自动填写。 安装谷歌浏览器和WebDriver 安装谷歌浏览器（google-chrome-stable）：  curl https:&#x2F;&#x2F;intoli.com&#x2F;install-google-chrome.sh | bash  注：本文全">
+<meta property="og:type" content="article">
+<meta property="og:title" content="CentOS7 配置Python3+selenium调用谷歌浏览器">
+<meta property="og:url" content="https://huianyuan.github.io.git/2023/03/15/028.CentOS7%20%E9%85%8D%E7%BD%AEPython3+selenium%E8%B0%83%E7%94%A8%E8%B0%B7%E6%AD%8C%E6%B5%8F%E8%A7%88%E5%99%A8%E5%81%A5%E5%BA%B7%E5%A1%AB%E6%8A%A5/index.html">
+<meta property="og:site_name" content="惠安苑">
+<meta property="og:description" content="腾讯云服务器，系统CentOS7，Python自带2.7，版本过低。无法满足需求，本文记录下安装Python3和谷歌浏览器驱动，配合selenium实现体温填报系统自动填写。 安装谷歌浏览器和WebDriver 安装谷歌浏览器（google-chrome-stable）：  curl https:&#x2F;&#x2F;intoli.com&#x2F;install-google-chrome.sh | bash  注：本文全">
+<meta property="og:locale">
+<meta property="article:published_time" content="2023-03-15T00:44:20.642Z">
+<meta property="article:modified_time" content="2023-05-23T10:48:22.631Z">
+<meta property="article:author" content="HuianYuan">
+<meta property="article:tag" content="linux">
+<meta name="twitter:card" content="summary">
+
+
+<title >CentOS7 配置Python3+selenium调用谷歌浏览器</title>
+
+<!-- Favicon -->
+
+    <link href='/img/favicon.svg?v=2.0.9' rel='icon' type='image/png' sizes='16x16' ></link>
+
+
+    <link href='/img/favicon.svg?v=2.0.9' rel='icon' type='image/png' sizes='32x32' ></link>
+
+
+
+
+<!-- Plugin -->
+
+
+
+
+    
+<link rel="stylesheet" href="/css/plugins/bootstrap.row.css">
+
+    
+<link rel="stylesheet" href="https://npm.elemecdn.com/locomotive-scroll@4.1.4/dist/locomotive-scroll.min.css">
+
+    
+<link rel="stylesheet" href="https://npm.elemecdn.com/@fancyapps/ui@4.0/dist/fancybox.css">
+
+    
+    
+
+
+
+
+<!-- Icon -->
+
+    
+<link rel="stylesheet" href="/css/plugins/font-awesome.min.css">
+
+
+
+
+<!-- Variable -->
+<script>window.ASYNC_CONFIG = {"hostname":"huianyuan.github.io.git","author":"HuianYuan","root":"/","typed_text":["Backend Developer"],"theme_version":"2.0.9","theme":{"switch":true,"default":"style-light"},"favicon":{"logo":"/img/favicon.svg","icon16":"/img/favicon.svg","icon32":"/img/favicon.svg","appleTouchIcon":null,"webmanifest":null,"visibilitychange":false,"hidden":"/failure.ico","showText":"(/≧▽≦/)咦！又好了！","hideText":"(●—●)喔哟，崩溃啦！"},"i18n":{"placeholder":"搜索文章...","empty":"找不到您查询的内容: ${query}","hits":"找到 ${hits} 条结果","hits_time":"找到 ${hits} 条结果（用时 ${time} 毫秒）","author":"本文作者：","copyright_link":"本文链接：","copyright_license_title":"版权声明：","copyright_license_content":"本博客所有文章除特别声明外，均默认采用 undefined 许可协议。","copy_success":"复制成功","copy_failure":"复制失败","open_read_mode":"进入阅读模式","exit_read_mode":"退出阅读模式","notice_outdate_message":"距离上次更新已经 undefined 天了, 文章内容可能已经过时。","just":"刚刚","min":"分钟前","hour":"小时前","day":"天前","month":"个月前"},"swup":false,"plugin":{"flickr_justified_gallery":"https://npm.elemecdn.com/flickr-justified-gallery@latest/dist/fjGallery.min.js"},"icons":{"sun":"far fa-sun","moon":"far fa-moon","play":"fas fa-play","email":"far fa-envelope","next":"fas fa-arrow-right","calendar":"far fa-calendar-alt","clock":"far fa-clock","user":"far fa-user","back_top":"fas fa-arrow-up","close":"fas fa-times","search":"fas fa-search","reward":"fas fa-hand-holding-usd","user_tag":"fas fa-user-alt","toc_tag":"fas fa-th-list","read":"fas fa-book-reader","arrows":"fas fa-arrows-alt-h","double_arrows":"fas fa-angle-double-down","copy":"fas fa-copy"},"icontype":"font","highlight":{"plugin":"highlighjs","theme":true,"copy":true,"lang":true,"title":"default","height_limit":false}};</script>
+<script id="async-page-config">window.PAGE_CONFIG = {"isPost":true,"isHome":false,"postUpdate":"2023-05-23 18:48:22"};</script>
+
+<!-- Theme mode css -->
+<link data-swup-theme rel="stylesheet" href="/css/index.css?v=2.0.9" id="trm-switch-style">
+<script>
+    let defaultMode = ASYNC_CONFIG.theme.default !=='auto' ?  ASYNC_CONFIG.theme.default : (window.matchMedia("(prefers-color-scheme: light)").matches ? 'style-light' : 'style-dark')
+    let catchMode = localStorage.getItem('theme-mode') || defaultMode;
+    let type = catchMode === 'style-dark' ? 'add' : 'remove';
+    document.documentElement.classList[type]('dark')
+</script>
+
+<!-- CDN -->
+
+
+    
+    
+
+
+
+<!-- Site Analytics -->
+ 
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+<body>
+
+  <!-- app wrapper -->
+  <div class="trm-app-frame">
+
+    <!-- page preloader -->
+    <div class="trm-preloader">
+    <div class="trm-holder">
+        <div class="preloader">
+            <div></div>
+            <div></div>
+            <div></div>
+            <div></div>
+            <div></div>
+            <div></div>
+            <div></div>
+            <div></div>
+            <div></div>
+            <div></div>
+        </div>
+    </div>
+</div>
+    <!-- page preloader end -->
+
+    <!-- change mode preloader -->
+    <div class="trm-mode-swich-animation-frame">
+    <div class="trm-mode-swich-animation">
+        <i class="i-sun"><i class="iconfont far fa-sun"></i></i>
+        <div class="trm-horizon"></div>
+        <i class="i-moon"><i class="iconfont far fa-moon"></i></i>
+    </div>
+</div>
+    <!-- change mode preloader end -->
+
+      <!-- scroll container -->
+      <div id="trm-dynamic-content" class="trm-swup-animation">
+        <div id="trm-scroll-container" class="trm-scroll-container" data-scroll-container style="opacity: 0">
+          <div data-scroll-section id="content" class="trm-scroll-section">
+
+            <div class="locomotive-scroll__sticky-target" style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; pointer-events: none;"></div>
+
+            <!-- top bar -->
+            <header class="trm-top-bar" data-scroll data-scroll-sticky data-scroll-target=".locomotive-scroll__sticky-target" data-scroll-offset="-10">
+	<div class="container">
+		<div class="trm-left-side">
+			<!-- logo -->
+<a href="/" class="trm-logo-frame trm-anima-link">
+    
+        <img alt="logo" src="/img/favicon.svg">
+    
+    
+        <div class="trm-logo-text">
+            苑<span>惠安</span>
+        </div>
+    
+</a>
+<!-- logo end -->
+		</div>
+		<div class="trm-right-side">
+			<!-- menu -->
+<div class="trm-menu">
+    <nav>
+        <ul>
+            
+            <li class="menu-item-has-children ">
+                <a  href="/" target="">
+                    首页
+                </a>
+                
+            </li>
+            
+            <li class="menu-item-has-children ">
+                <a data-no-swup href="/archives/" target="">
+                    归档
+                </a>
+                
+            </li>
+            
+            <li class="menu-item-has-children ">
+                <a data-no-swup href="/categories/" target="">
+                    分类
+                </a>
+                
+            </li>
+            
+            <li class="menu-item-has-children ">
+                <a data-no-swup href="/tags/" target="">
+                    标签
+                </a>
+                
+            </li>
+            
+        </ul>
+    </nav>
+</div>
+<!-- menu end -->
+			
+    <!-- mode switcher place -->
+    <div class="trm-mode-switcher-place">
+        <div class="trm-mode-switcher">
+            <i class="iconfont far fa-sun"></i>
+            <input class="tgl tgl-light" id="trm-swich" type="checkbox">
+            <label class="trm-swich" for="trm-swich"></label>
+            <i class="iconfont far fa-moon"></i>
+        </div>
+    </div>
+    <!-- mode switcher place end -->
+
+			
+		</div>
+		<div class="trm-menu-btn">
+			<span></span>
+		</div>
+	</div>
+</header>
+            <!-- top bar end -->
+
+            <!-- body -->
+            
+<div class="trm-content-start">
+    <!-- banner -->
+    <div class="trm-banner" data-scroll data-scroll-direction="vertical">
+    
+    <!-- banner cover -->
+    <img style="object-position:top;object-fit:cover;" alt="banner" class="trm-banner-cover" data-scroll data-scroll-direction="vertical" data-scroll-speed="-3" src="/img/banner.png">
+    <!-- banner cover end -->
+    
+
+    <!-- banner content -->
+    <div class="trm-banner-content trm-overlay">
+        <div class="container" data-scroll data-scroll-direction="vertical" data-scroll-speed="0">
+            <div class="row">
+                
+                <div class="col-lg-4"></div>
+                
+                <div class="col-lg-8">
+
+                    <!-- banner title -->
+                    <div class="trm-banner-text ">
+                        <div class="trm-label trm-mb-20">
+                            NEWS LETTER
+                        </div>
+                        <h1 class="trm-mb-30 trm-hsmb-font">
+                            CentOS7 配置Python3+selenium调用谷歌浏览器
+                        </h1>
+
+                        
+                            <ul class="trm-breadcrumbs trm-label">
+                                <li>
+                                    <a href="/" class="trm-anima-link">Home</a>
+                                </li>
+                                <li>
+                                    <span>
+                                        2023
+                                    </span
+                                ></li>
+                            </ul>
+                        
+                    </div>
+                    <!-- banner title end -->
+
+                    <!-- scroll hint -->
+                    <a href="#about-triger" data-scroll-to="#about-triger" data-scroll-offset="-130" class="trm-scroll-hint-frame">
+                        <div class="trm-scroll-hint"></div>
+                        <span class="trm-label">Scroll down</span>
+                    </a>
+                    <!-- scroll hint end -->
+
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- banner content end -->
+</div>
+    <!-- banner end -->
+    <div class="container">
+        <div class="row">
+            
+                <div id="page-sidebar" class="col-lg-4 hidden-sm">
+                    <!-- main card -->
+                    
+
+<div class="trm-main-card-frame trm-sidebar">
+    <div class="trm-main-card" data-scroll data-scroll-repeat data-scroll-sticky data-scroll-target=".locomotive-scroll__sticky-target" data-scroll-offset="60"> 
+    
+        <div class="trm-user-tabs" id="sidebar-tabs">
+           <div class="trm-tabs-nav trm-mb-40" id="trm-tabs-nav">
+                <div data-to="tabs-user" class="trm-tabs-nav-item">
+                    <i class="iconfont fas fa-user-alt"></i>
+                </div>
+                <div data-to="tabs-toc" class="trm-tabs-nav-item active">
+                    <i class="iconfont fas fa-th-list"></i>
+                </div>
+           </div>
+            <div name="tabs-user" class="trm-tabs-item">
+                <!-- card header -->
+<div class="trm-mc-header">
+    <div class="trm-avatar-frame trm-mb-20">
+        <img alt="Avatar" class="trm-avatar" src="https://avatars.githubusercontent.com/u/34713275?s=400&u=e57687047911b1e9855c2dc012430c447af72773&v=4">
+    </div>
+    <h5 class="trm-name trm-mb-15">
+        HuianYuan
+    </h5>
+    
+        <div class="trm-label">
+            I`m
+            <span class="trm-typed-text">
+                <!-- Words for theme.user.typedText -->
+            </span>
+        </div>
+    
+</div>
+<!-- card header end -->
+                <!-- sidebar social -->
+
+<div class="trm-divider trm-mb-40 trm-mt-40"></div>
+<div class="trm-social">
+    
+        <a href="https://github.com/Huianyuan" title="github" rel="nofollow" target="_blank">
+            <i class="iconfont fab fa-github"></i>
+        </a>
+    
+</div>
+
+<!-- sidebar social end -->
+                <!-- info -->
+<div class="trm-divider trm-mb-40 trm-mt-40"></div>
+<ul class="trm-table trm-mb-20">
+    
+        <li>
+            <div class="trm-label">
+                地址:
+            </div>
+            <div class="trm-label trm-label-light">
+                上海
+            </div>
+        </li>
+    
+</ul>
+<!-- info end -->
+
+                
+    <div class="trm-divider trm-mb-40 trm-mt-40"></div>
+    <!-- action button -->
+    <div class="text-center">
+        <a href="mailto:452970841@qq.com" class="trm-btn">
+            联系我
+            <i class="iconfont far fa-envelope"></i>
+        </a>
+    </div>
+    <!-- action button end -->
+
+            </div>
+            <div name="tabs-toc" class="trm-tabs-item active">
+                <div class="post-toc">
+    <ol class="toc"><li class="toc-item toc-level-2"><a rel="nofollow" class="toc-link" href="#安装谷歌浏览器和WebDriver"  data-scroll-to="#安装谷歌浏览器和WebDriver"><span class="toc-number">1.</span> <span class="toc-text">安装谷歌浏览器和WebDriver</span></a></li><li class="toc-item toc-level-2"><a rel="nofollow" class="toc-link" href="#安装Python3"  data-scroll-to="#安装Python3"><span class="toc-number">2.</span> <span class="toc-text">安装Python3</span></a></li><li class="toc-item toc-level-2"><a rel="nofollow" class="toc-link" href="#体温健康填报项目"  data-scroll-to="#体温健康填报项目"><span class="toc-number">3.</span> <span class="toc-text">体温健康填报项目</span></a></li></ol>
+</div>
+            </div>
+        </div>
+    
+    </div>
+</div>
+                    <!-- main card end -->
+                </div>
+            
+            <div id="page-content" class="col-lg-8">
+                <div class="trm-content" id="trm-content">
+                    <div data-scroll data-scroll-repeat data-scroll-offset="500" id="about-triger"></div>
+
+                    <div id="post-info" class="row hidden-sm">
+    <div class="col-sm-4">
+        <div class="trm-card trm-label trm-label-light text-center">
+            <i class="iconfont far fa-calendar-alt trm-icon"></i><br>
+            03/15
+        </div>
+    </div>
+    <div class="col-sm-4">
+        <div class="trm-card trm-label trm-label-light text-center">
+            <i class="iconfont far fa-clock trm-icon"></i><br>
+            08:44
+        </div>
+    </div>
+    <div class="col-sm-4">
+        <div id="post-author" class="trm-card trm-label trm-label-light text-center">
+            <i class="iconfont far fa-user trm-icon"></i><br>
+            HuianYuan
+        </div>
+    </div>
+</div>
+<div class="trm-card ">
+    <article id="article-container" class="trm-publication">
+    <p>腾讯云服务器，系统CentOS7，Python自带2.7，版本过低。无法满足需求，本文记录下安装Python3和谷歌浏览器驱动，配合<code>selenium</code>实现体温填报系统自动填写。</p>
+<h2 id="安装谷歌浏览器和WebDriver"><a href="#安装谷歌浏览器和WebDriver" class="headerlink" title="安装谷歌浏览器和WebDriver"></a>安装谷歌浏览器和WebDriver</h2><ol>
+<li><p>安装谷歌浏览器（google-chrome-stable）：</p>
+<p> <code>curl https://intoli.com/install-google-chrome.sh | bash</code></p>
+<p> 注：本文全程使用root账户进行操作，普通用户是否可行不清楚。</p>
+</li>
+<li><p>测试是否安装成功</p>
+ <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">[root@VM-16-12-centos lighthouse]<span class="comment"># google-chrome-stable --no-sandbox --headless --disable-gpu --screenshot https://www.baidu.com</span></span><br><span class="line">[0620/113820.501104:WARNING:bluez_dbus_manager.cc(248)] Floss manager not present, cannot <span class="built_in">set</span> Floss <span class="built_in">enable</span>/disable.</span><br><span class="line">[0620/113820.584207:WARNING:sandbox_linux.cc(376)] InitializeSandbox() called with multiple threads <span class="keyword">in</span> process gpu-process.</span><br><span class="line">[0620/113821.294482:INFO:headless_shell.cc(660)] Written to file screenshot.png.</span><br><span class="line">[root@VM-16-12-centos lighthouse]<span class="comment"># ll</span></span><br><span class="line">-rw------- 1 lighthouse lighthouse    20123 Jun 20 11:38 screenshot.png</span><br></pre></td></tr></table></figure>
+
+<p> 查看目录确实下载了截图，证明安装成功，如上存在了screenshot.png文件</p>
+</li>
+<li><p>安装Chromedriver</p>
+<p> 3.1首先查看你安装的Chrome版本：<code>google-chrome-stable --version</code> </p>
+ <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">[root@VM-16-12-centos lighthouse]<span class="comment"># google-chrome-stable --version</span></span><br><span class="line">Google Chrome 102.0.5005.115 </span><br></pre></td></tr></table></figure>
+
+<p> 我这里是102.0.5005.115，所以需要下载最接近的版本，这里提供镜像网站，找到你最接近的版本，邮件复制链接，输入命令:</p>
+<p> <code>wget https://registry.npmmirror.com/-/binary/chromedriver/102.0.5005.27/chromedriver_linux64.zip</code></p>
+<p> 下载目标版本的linux64压缩包。</p>
+<p> 镜像地址：</p>
+<p> <a target="_blank" rel="noopener" href="https://registry.npmmirror.com/binary.html?path=chromedriver/">国内镜像 https://npm.taobao.org/mirrors/chromedriver/</a></p>
+<p> <a target="_blank" rel="noopener" href="https://chromedriver.storage.googleapis.com/">官方地址：https://chromedriver.storage.googleapis.com</a></p>
+<p> 3.2 解压下载的文件：<code>unzip chromedriver_linux64.zip</code></p>
+<p> 若提示<code>bash: unzip : command not found</code> 则需要安装unzip，使用命令：<code>yum -y install unzip</code></p>
+<p> 解压完毕会多一个文件：<code>chromedriver</code>  （这里是备用选项：给此文件增加权限 <code>chmod a+x chromedriver</code>）</p>
+<p> 3.3 安装：<code>./chromedriver</code>   （找资料有说是放在&#x2F;usr&#x2F;bin&#x2F; 目录下，结合上一步的怎加权限，具体如何请多尝试下；增加权限后，使用selenium自动化任务，因为用到OCR识别，所以提示我tesseract没有路径，所以，增加权限这里应该是成功了。）</p>
+<p> 提示：<code>ChromeDriver was started successfully.</code> 此时<code>Ctrl + C</code> 退出安装即可。</p>
+</li>
+</ol>
+<h2 id="安装Python3"><a href="#安装Python3" class="headerlink" title="安装Python3"></a>安装Python3</h2><p>自带python2.7，版本太低了。</p>
+<ol>
+<li><p>首先安装依赖，依次执行下面三条命令：</p>
+ <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">yum -y groupinstall <span class="string">&quot;Development tools&quot;</span></span><br><span class="line">yum install -y ncurses-devel gdbm-devel xz-devel sqlite-devel tk-devel uuid-devel readline-devel bzip2-devel libffi-devel</span><br><span class="line">yum install -y openssl-devel openssl11 openssl11-devel</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>下载安装包</p>
+ <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">mkdir</span> -p /doc/temp &amp;&amp; <span class="built_in">cd</span> /doc/temp <span class="comment"># 创建目录并进入该目录</span></span><br><span class="line">wget https://www.python.org/ftp/python/3.8.6/Python-3.8.6.tgz</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>编译</p>
+ <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 1 设置编译FLAG</span></span><br><span class="line"><span class="built_in">export</span> CFLAGS=$(pkg-config --cflags openssl11)</span><br><span class="line"><span class="built_in">export</span> LDFLAGS=$(pkg-config --libs openssl11)</span><br><span class="line"><span class="comment"># 2 进入源码目录</span></span><br><span class="line">tar xvzf Python-3.8.6.tgz</span><br><span class="line"><span class="built_in">cd</span> Python-3.8.6</span><br><span class="line"><span class="comment"># 3 编译</span></span><br><span class="line">./configure --enable-optimizations &amp;&amp; make altinstall</span><br><span class="line"><span class="comment"># 4 验证</span></span><br><span class="line">/usr/loctl/bin/Python3.8 --version</span><br><span class="line">/usr/loctl/bin/pip3.8 --version</span><br></pre></td></tr></table></figure>
+
+ <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 服务器操作主要过程（只保留用户输入命令和简短应答）</span></span><br><span class="line">[root@VM-16-12-centos temp]<span class="comment"># export CFLAGS=$(pkg-config --cflags openssl11)</span></span><br><span class="line">[root@VM-16-12-centos temp]<span class="comment"># export LDFLAGS=$(pkg-config --libs openssl11)</span></span><br><span class="line">[root@VM-16-12-centos temp]<span class="comment"># echo $CFLAGS</span></span><br><span class="line">-I/usr/include/openssl11</span><br><span class="line">[root@VM-16-12-centos temp]<span class="comment"># echo $LDFLAGS</span></span><br><span class="line">-L/usr/lib64/openssl11 -lssl -lcrypto</span><br><span class="line">[root@VM-16-12-centos temp]<span class="comment"># tar xvzf Python-3.8.6.tgz</span></span><br><span class="line">[root@VM-16-12-centos temp]<span class="comment"># cd Python-3.8.6/</span></span><br><span class="line">[root@VM-16-12-centos Python-3.8.6]<span class="comment"># ./configure --enable-optimizations &amp;&amp; make altinstall</span></span><br><span class="line">[root@VM-16-12-centos Python-3.8.6]<span class="comment"># /usr/local/bin/python3.8 --version</span></span><br><span class="line">Python 3.8.6</span><br><span class="line">[root@VM-16-12-centos Python-3.8.6]<span class="comment"># /usr/local/bin/pip3.8 --version</span></span><br><span class="line">pip 20.2.1 from /usr/local/lib/python3.8/site-packages/pip (python 3.8)</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>配置</p>
+ <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 配置快捷命令</span></span><br><span class="line"><span class="built_in">ln</span> -sf /usr/local/bin/python3.8 /usr/bin/python</span><br><span class="line"><span class="built_in">ln</span> -sf /usr/local/bin/pip3.8 /usr/bin/pip</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>（可选）配置pip源：<code>vim ~/.pip/pip.conf</code></p>
+ <figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 打开文件下填写以下内容</span></span><br><span class="line">[<span class="string">global</span>]</span><br><span class="line"><span class="string">index-url</span> <span class="string">=</span> <span class="string">https://mirrors.aliyun.com/pypi/simple</span></span><br><span class="line"></span><br><span class="line">[<span class="string">install</span>]</span><br><span class="line"><span class="string">trusted-host</span> <span class="string">=</span> <span class="string">mirrors.aliyun.com</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p>验证python版本，可以看到软连接已指向python3.8</p>
+ <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">[root@VM-16-12-centos lighthouse]<span class="comment"># which python</span></span><br><span class="line">/usr/bin/python</span><br><span class="line">[root@VM-16-12-centos lighthouse]<span class="comment"># cd /usr/bin/</span></span><br><span class="line">[root@VM-16-12-centos bin]<span class="comment"># ll python*</span></span><br><span class="line">lrwxrwxrwx 1 root root   24 Jun 20 14:05 python -&gt; /usr/local/bin/python3.8</span><br><span class="line">lrwxrwxrwx 1 root root    9 Jan 19  2021 python2 -&gt; python2.7</span><br><span class="line">-rwxr-xr-x 1 root root 7144 Nov 17  2020 python2.7</span><br></pre></td></tr></table></figure></li>
+</ol>
+<p>以上谷歌浏览器和WebDriver还有Python3安装完毕。</p>
+<p>下面是提问填报项目需要的包的安装即部署。</p>
+<h2 id="体温健康填报项目"><a href="#体温健康填报项目" class="headerlink" title="体温健康填报项目"></a>体温健康填报项目</h2><ul>
+<li><p>项目所需依赖：</p>
+<p>  pytesseract<del>&#x3D;0.3.9<br>  opencv-python</del>&#x3D;4.5.5.62<br>  numpy<del>&#x3D;1.22.3<br>  selenium</del>&#x3D;3.141.0<br>  pillow~&#x3D;9.1.1</p>
+</li>
+</ul>
+<p>依赖安装完毕，运行python代码，提示：</p>
+<p><code>selenium.common.exceptions.WebDriverException: Message: &#39;chromedriver&#39; executable needs to be in PATH.</code></p>
+<p>在windows上是需要把chromedriver.exe文件放在python目录下的。这里我将chromedriver文件放在<code>/usr/bin/</code>目录下；然后提示：</p>
+<p><code>selenium.common.exceptions.WebDriverException: Message: &#39;chromedriver&#39; executable may have wrong permissions.</code></p>
+<p>现在不知道怎么弄了。本篇先写到在这里，后面运行成功在写一篇。</p>
+<p>项目用到了OCR识别，所以还需要安装tesseract，配合pytesseract使用。</p>
+<p>​      </p>
+<p>参考资料：</p>
+<p><a target="_blank" rel="noopener" href="https://www.jianshu.com/p/34098b1a5ee1">https://www.jianshu.com/p/34098b1a5ee1</a></p>
+<p><a target="_blank" rel="noopener" href="http://t.zoukankan.com/xiao987334176-p-13729924.html">http://t.zoukankan.com/xiao987334176-p-13729924.html</a></p>
+<p><a target="_blank" rel="noopener" href="https://www.bilibili.com/video/BV1AL4y1j7iR">https://www.bilibili.com/video/BV1AL4y1j7iR</a></p>
+
+</article>
+    
+    
+
+</div>
+<div id="post-next-prev" class="row">
+    <div class="col-lg-12">
+        <!-- title -->
+        <h5 class="trm-title-with-divider">
+            其他文章
+            <span data-number="02"></span>
+        </h5>
+    </div>
+    
+        <div class="col-lg-6">
+    <div class="trm-blog-card trm-scroll-animation" data-scroll data-scroll-offset="40">
+        <a href="/2023/03/15/029.(Algo)%E4%BA%8C%E5%88%86%E6%9F%A5%E6%89%BE/" class="trm-cover-frame trm-anima-link">
+            
+            
+                <img alt="cover" class="no-fancybox" src="/img/block.jpg">
+            
+        </a>
+        
+        <div class="trm-card-descr">
+            <div class="trm-label trm-category trm-mb-20">
+                <a href=" /categories/LeetCode/">
+                    LeetCode
+                </a>
+            </div>
+            <h5>
+                <a href="/2023/03/15/029.(Algo)%E4%BA%8C%E5%88%86%E6%9F%A5%E6%89%BE/" class="trm-anima-link">
+                    12.二分查找
+                </a>
+            </h5>
+            <div class="trm-divider trm-mb-20 trm-mt-20"></div>
+            <ul class="trm-card-data trm-label">
+                <li>23/03/15</li>
+                <li>08:44</li>
+                
+                
+            </ul>
+        </div>
+    </div>
+</div>
+    
+    
+        <div class="col-lg-6">
+    <div class="trm-blog-card trm-scroll-animation" data-scroll data-scroll-offset="40">
+        <a href="/2023/03/15/027.linux%E8%99%9A%E6%8B%9F%E6%9C%BA%E5%9B%BA%E5%AE%9AIP/" class="trm-cover-frame trm-anima-link">
+            
+            
+                <img alt="cover" class="no-fancybox" src="/img/block.jpg">
+            
+        </a>
+        
+        <div class="trm-card-descr">
+            <div class="trm-label trm-category trm-mb-20">
+                <a href=" /categories/Linux/">
+                    Linux
+                </a>
+            </div>
+            <h5>
+                <a href="/2023/03/15/027.linux%E8%99%9A%E6%8B%9F%E6%9C%BA%E5%9B%BA%E5%AE%9AIP/" class="trm-anima-link">
+                    linux虚拟机IP固定
+                </a>
+            </h5>
+            <div class="trm-divider trm-mb-20 trm-mt-20"></div>
+            <ul class="trm-card-data trm-label">
+                <li>23/03/15</li>
+                <li>08:44</li>
+                
+                
+            </ul>
+        </div>
+    </div>
+</div>
+    
+</div>
+
+    
+
+
+
+                    <div class="trm-divider footer-divider"></div>
+
+                    <!-- footer -->
+                    <footer class="trm-scroll-animation" data-scroll data-scroll-offset="50">
+
+    
+
+    
+
+    
+        <div class="trm-footer-item">
+            <span>
+                由 <a href="https://hexo.io" target="_blank" rel="noopener">Hexo</a> 驱动 v6.3.0
+            </span>
+            <span class="footer-separator" data-separator=" | "></span>
+            <span> 
+                主题 - 
+                <a rel="noopener" href='https://github.com/MaLuns/hexo-theme-async' target='_blank'>Async</a>
+                v2.0.9
+            </span>
+        </div>
+      
+
+     
+
+     
+</footer>
+ 
+                    <!-- footer end -->
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+            <!-- body end -->
+
+            <div class="trm-fixed-container" data-scroll data-scroll-sticky data-scroll-target=".locomotive-scroll__sticky-target" data-scroll-offset="-10">
+    
+        <div class="trm-fixed-btn" data-title="阅读模式" onclick="asyncFun.switchReadMode()">
+            <i class="iconfont fas fa-book-reader"></i>
+        </div>
+    
+    
+        <div class="trm-fixed-btn" data-title="单栏和双栏切换" onclick="asyncFun.switchSingleColumn()">
+            <i class="iconfont fas fa-arrows-alt-h"></i>
+        </div>
+    
+    <div id="trm-back-top" class="trm-fixed-btn" data-title="回到顶部">
+        <i class="iconfont fas fa-arrow-up"></i>
+    </div>
+</div>
+          </div>
+        </div>
+      </div>
+      <!-- scroll container end -->
+
+  </div>
+  <!-- app wrapper end -->
+
+  
+  <!-- Plugin -->
+
+
+
+
+    
+    
+<script src="https://npm.elemecdn.com/locomotive-scroll@4.1.4/dist/locomotive-scroll.min.js"></script>
+
+    
+<script src="https://npm.elemecdn.com/@fancyapps/ui@4.0/dist/fancybox.umd.js"></script>
+
+    
+
+    
+        <script src="/js/plugins/typing.js?v=2.0.9"></script>
+    
+
+    
+
+    <!-- 数学公式 -->
+    
+
+    <!-- 评论插件 -->
+    
+        
+
+        
+    
+
+
+
+<!-- CDN -->
+
+
+    
+
+    
+
+    
+
+
+
+
+    <!-- Service Worker -->
+    
+    <!-- baidu push -->
+    
+
+
+<script id="async-script" src="/js/main.js?v=2.0.9"></script>
+
+</body>
+
+</html>
