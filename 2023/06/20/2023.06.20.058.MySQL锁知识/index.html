@@ -1,0 +1,737 @@
+<!DOCTYPE html>
+<html lang="zh-Hans">
+
+<head>
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+<meta name="x5-fullscreen" content="true">
+<meta name="full-screen" content="yes">
+<meta name="theme-color" content="#317EFB" />
+<meta content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=0" name="viewport">
+<meta name="description" content="总分类如下：  粒度分类 全局锁 表锁 行锁   模式分类 乐观锁 悲观锁   属性分类 共享锁 排它锁   状态分类 意向共享 意向排他   算法分类 间隙锁 记录锁 临键锁    1.全局锁MySQL全局锁是针对整个数据库的锁。最常用的全局锁是读锁和写锁。  读锁（共享锁）：它阻止其他用户更新数据，但允许他们读取数据。这在你需要在一段时间内保持数据一致性时很有用。 写锁（排他锁）：它阻正其他用">
+<meta property="og:type" content="article">
+<meta property="og:title" content="MySQL锁知识">
+<meta property="og:url" content="https://huianyuan.github.io.git/2023/06/20/2023.06.20.058.MySQL%E9%94%81%E7%9F%A5%E8%AF%86/index.html">
+<meta property="og:site_name" content="惠安苑">
+<meta property="og:description" content="总分类如下：  粒度分类 全局锁 表锁 行锁   模式分类 乐观锁 悲观锁   属性分类 共享锁 排它锁   状态分类 意向共享 意向排他   算法分类 间隙锁 记录锁 临键锁    1.全局锁MySQL全局锁是针对整个数据库的锁。最常用的全局锁是读锁和写锁。  读锁（共享锁）：它阻止其他用户更新数据，但允许他们读取数据。这在你需要在一段时间内保持数据一致性时很有用。 写锁（排他锁）：它阻正其他用">
+<meta property="og:locale">
+<meta property="article:published_time" content="2023-06-20T13:32:27.000Z">
+<meta property="article:modified_time" content="2023-06-20T13:34:06.665Z">
+<meta property="article:author" content="HuianYuan">
+<meta property="article:tag" content="MySQL">
+<meta name="twitter:card" content="summary">
+
+
+<title >MySQL锁知识</title>
+
+<!-- Favicon -->
+
+    <link href='/img/favicon.svg?v=2.0.9' rel='icon' type='image/png' sizes='16x16' ></link>
+
+
+    <link href='/img/favicon.svg?v=2.0.9' rel='icon' type='image/png' sizes='32x32' ></link>
+
+
+
+
+<!-- Plugin -->
+
+
+
+
+    
+<link rel="stylesheet" href="/css/plugins/bootstrap.row.css">
+
+    
+<link rel="stylesheet" href="https://npm.elemecdn.com/locomotive-scroll@4.1.4/dist/locomotive-scroll.min.css">
+
+    
+<link rel="stylesheet" href="https://npm.elemecdn.com/@fancyapps/ui@4.0/dist/fancybox.css">
+
+    
+    
+
+
+
+
+<!-- Icon -->
+
+    
+<link rel="stylesheet" href="/css/plugins/font-awesome.min.css">
+
+
+
+
+<!-- Variable -->
+<script>window.ASYNC_CONFIG = {"hostname":"huianyuan.github.io.git","author":"HuianYuan","root":"/","typed_text":["Backend Developer"],"theme_version":"2.0.9","theme":{"switch":true,"default":"style-light"},"favicon":{"logo":"/img/favicon.svg","icon16":"/img/favicon.svg","icon32":"/img/favicon.svg","appleTouchIcon":null,"webmanifest":null,"visibilitychange":false,"hidden":"/failure.ico","showText":"(/≧▽≦/)咦！又好了！","hideText":"(●—●)喔哟，崩溃啦！"},"i18n":{"placeholder":"搜索文章...","empty":"找不到您查询的内容: ${query}","hits":"找到 ${hits} 条结果","hits_time":"找到 ${hits} 条结果（用时 ${time} 毫秒）","author":"本文作者：","copyright_link":"本文链接：","copyright_license_title":"版权声明：","copyright_license_content":"本博客所有文章除特别声明外，均默认采用 undefined 许可协议。","copy_success":"复制成功","copy_failure":"复制失败","open_read_mode":"进入阅读模式","exit_read_mode":"退出阅读模式","notice_outdate_message":"距离上次更新已经 undefined 天了, 文章内容可能已经过时。","just":"刚刚","min":"分钟前","hour":"小时前","day":"天前","month":"个月前"},"swup":false,"plugin":{"flickr_justified_gallery":"https://npm.elemecdn.com/flickr-justified-gallery@latest/dist/fjGallery.min.js"},"icons":{"sun":"far fa-sun","moon":"far fa-moon","play":"fas fa-play","email":"far fa-envelope","next":"fas fa-arrow-right","calendar":"far fa-calendar-alt","clock":"far fa-clock","user":"far fa-user","back_top":"fas fa-arrow-up","close":"fas fa-times","search":"fas fa-search","reward":"fas fa-hand-holding-usd","user_tag":"fas fa-user-alt","toc_tag":"fas fa-th-list","read":"fas fa-book-reader","arrows":"fas fa-arrows-alt-h","double_arrows":"fas fa-angle-double-down","copy":"fas fa-copy"},"icontype":"font","highlight":{"plugin":"highlighjs","theme":true,"copy":true,"lang":true,"title":"default","height_limit":false},"covers":["https://gd-hbimg.huaban.com/6c7c6cb1280654293598481ab4caa8ef308f6abc176736-9Dqd8L_fw658webp","https://gd-hbimg.huaban.com/8bfe08162f50181c287ef3e2c9d16807e24b5bef2e7905-BV3Ogq_fw658webp","https://gd-hbimg.huaban.com/d8eb97c1daa6b2f00c5ea1b0776a191a67e3af721cb275-f2mmfJ_fw658webp","https://gd-hbimg.huaban.com/6767ac43fb8c31f797a75b11b923505b8dd2519410a78e-wfUAVs_fw658webp","https://gd-hbimg.huaban.com/b32f5fc47d0ce6221ba0cd9116b51abed1715b781fa745-3NEj55_fw658webp","https://gd-hbimg.huaban.com/763d618029395e2e286106b41a71f248021efe7b9f0d1-LGsaRo_fw658webp","https://gd-hbimg.huaban.com/ce73430112f6c28582e5a53674fc5759e59fc223c6bdc-nR9wsQ_fw658webp","https://gd-hbimg.huaban.com/66335a38350887b6e7bf788e0e23479d8f5898d9f2d6b-17oNru_fw658webp","https://gd-hbimg.huaban.com/68476e04b4dff58f269d0ebf2d7fd227cc4d6cf5ae9d6-pjqsqD_fw658webp","https://gd-hbimg.huaban.com/f9000a964db5b0ae137dd2c1148f43cabad9de0d2f598-QHzEXI_fw658webp","https://gd-hbimg.huaban.com/b4a34c4dec27761e604ec742f5dcc121b652a17b53fc-UPO5q9_fw658webp","https://gd-hbimg.huaban.com/cdccd126bfea0265ef4d8e40a154fb10dcb005519c57-nfIZOe_fw658webp","https://gd-hbimg.huaban.com/cdcbd79ebff4cf1ba89decd3eb541940ec91f1e02ef07-UZBsNu_fw658webp","https://gd-hbimg.huaban.com/bca33bb4e2a9931ea77aef3b5bc180dd728d447da1853-RzX5G4_fw658webp"]};</script>
+<script id="async-page-config">window.PAGE_CONFIG = {"isPost":true,"isHome":false,"postUpdate":"2023-06-20 21:34:06"};</script>
+
+<!-- Theme mode css -->
+<link data-swup-theme rel="stylesheet" href="/css/index.css?v=2.0.9" id="trm-switch-style">
+<script>
+    let defaultMode = ASYNC_CONFIG.theme.default !=='auto' ?  ASYNC_CONFIG.theme.default : (window.matchMedia("(prefers-color-scheme: light)").matches ? 'style-light' : 'style-dark')
+    let catchMode = localStorage.getItem('theme-mode') || defaultMode;
+    let type = catchMode === 'style-dark' ? 'add' : 'remove';
+    document.documentElement.classList[type]('dark')
+</script>
+
+<!-- CDN -->
+
+
+    
+    
+
+
+
+<!-- Site Analytics -->
+ 
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+<body>
+
+  <!-- app wrapper -->
+  <div class="trm-app-frame">
+
+    <!-- page preloader -->
+    <div class="trm-preloader">
+    <div class="trm-holder">
+        <div class="preloader">
+            <div></div>
+            <div></div>
+            <div></div>
+            <div></div>
+            <div></div>
+            <div></div>
+            <div></div>
+            <div></div>
+            <div></div>
+            <div></div>
+        </div>
+    </div>
+</div>
+    <!-- page preloader end -->
+
+    <!-- change mode preloader -->
+    <div class="trm-mode-swich-animation-frame">
+    <div class="trm-mode-swich-animation">
+        <i class="i-sun"><i class="iconfont far fa-sun"></i></i>
+        <div class="trm-horizon"></div>
+        <i class="i-moon"><i class="iconfont far fa-moon"></i></i>
+    </div>
+</div>
+    <!-- change mode preloader end -->
+
+      <!-- scroll container -->
+      <div id="trm-dynamic-content" class="trm-swup-animation">
+        <div id="trm-scroll-container" class="trm-scroll-container" data-scroll-container style="opacity: 0">
+          <div data-scroll-section id="content" class="trm-scroll-section">
+
+            <div class="locomotive-scroll__sticky-target" style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; pointer-events: none;"></div>
+
+            <!-- top bar -->
+            <header class="trm-top-bar" data-scroll data-scroll-sticky data-scroll-target=".locomotive-scroll__sticky-target" data-scroll-offset="-10">
+	<div class="container">
+		<div class="trm-left-side">
+			<!-- logo -->
+<a href="/" class="trm-logo-frame trm-anima-link">
+    
+        <img alt="logo" src="/img/favicon.svg">
+    
+    
+        <div class="trm-logo-text">
+            苑<span>惠安</span>
+        </div>
+    
+</a>
+<!-- logo end -->
+		</div>
+		<div class="trm-right-side">
+			<!-- menu -->
+<div class="trm-menu">
+    <nav>
+        <ul>
+            
+            <li class="menu-item-has-children ">
+                <a  href="/" target="">
+                    首页
+                </a>
+                
+            </li>
+            
+            <li class="menu-item-has-children ">
+                <a data-no-swup href="/archives/" target="">
+                    归档
+                </a>
+                
+            </li>
+            
+            <li class="menu-item-has-children ">
+                <a data-no-swup href="/categories/" target="">
+                    分类
+                </a>
+                
+            </li>
+            
+            <li class="menu-item-has-children ">
+                <a data-no-swup href="/tags/" target="">
+                    标签
+                </a>
+                
+            </li>
+            
+        </ul>
+    </nav>
+</div>
+<!-- menu end -->
+			
+    <!-- mode switcher place -->
+    <div class="trm-mode-switcher-place">
+        <div class="trm-mode-switcher">
+            <i class="iconfont far fa-sun"></i>
+            <input class="tgl tgl-light" id="trm-swich" type="checkbox">
+            <label class="trm-swich" for="trm-swich"></label>
+            <i class="iconfont far fa-moon"></i>
+        </div>
+    </div>
+    <!-- mode switcher place end -->
+
+			
+		</div>
+		<div class="trm-menu-btn">
+			<span></span>
+		</div>
+	</div>
+</header>
+            <!-- top bar end -->
+
+            <!-- body -->
+            
+<div class="trm-content-start">
+    <!-- banner -->
+    <div class="trm-banner" data-scroll data-scroll-direction="vertical">
+    
+    <!-- banner cover -->
+    <img style="object-position:top;object-fit:cover;" alt="banner" class="trm-banner-cover" data-scroll data-scroll-direction="vertical" data-scroll-speed="-3" src="/img/banner.png">
+    <!-- banner cover end -->
+    
+
+    <!-- banner content -->
+    <div class="trm-banner-content trm-overlay">
+        <div class="container" data-scroll data-scroll-direction="vertical" data-scroll-speed="0">
+            <div class="row">
+                
+                <div class="col-lg-4"></div>
+                
+                <div class="col-lg-8">
+
+                    <!-- banner title -->
+                    <div class="trm-banner-text ">
+                        <div class="trm-label trm-mb-20">
+                            NEWS LETTER
+                        </div>
+                        <h1 class="trm-mb-30 trm-hsmb-font">
+                            MySQL锁知识
+                        </h1>
+
+                        
+                            <ul class="trm-breadcrumbs trm-label">
+                                <li>
+                                    <a href="/" class="trm-anima-link">Home</a>
+                                </li>
+                                <li>
+                                    <span>
+                                        2023
+                                    </span
+                                ></li>
+                            </ul>
+                        
+                    </div>
+                    <!-- banner title end -->
+
+                    <!-- scroll hint -->
+                    <a href="#about-triger" data-scroll-to="#about-triger" data-scroll-offset="-130" class="trm-scroll-hint-frame">
+                        <div class="trm-scroll-hint"></div>
+                        <span class="trm-label">Scroll down</span>
+                    </a>
+                    <!-- scroll hint end -->
+
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- banner content end -->
+</div>
+    <!-- banner end -->
+    <div class="container">
+        <div class="row">
+            
+                <div id="page-sidebar" class="col-lg-4 hidden-sm">
+                    <!-- main card -->
+                    
+
+<div class="trm-main-card-frame trm-sidebar">
+    <div class="trm-main-card" data-scroll data-scroll-repeat data-scroll-sticky data-scroll-target=".locomotive-scroll__sticky-target" data-scroll-offset="60"> 
+    
+        <div class="trm-user-tabs" id="sidebar-tabs">
+           <div class="trm-tabs-nav trm-mb-40" id="trm-tabs-nav">
+                <div data-to="tabs-user" class="trm-tabs-nav-item">
+                    <i class="iconfont fas fa-user-alt"></i>
+                </div>
+                <div data-to="tabs-toc" class="trm-tabs-nav-item active">
+                    <i class="iconfont fas fa-th-list"></i>
+                </div>
+           </div>
+            <div name="tabs-user" class="trm-tabs-item">
+                <!-- card header -->
+<div class="trm-mc-header">
+    <div class="trm-avatar-frame trm-mb-20">
+        <img alt="Avatar" class="trm-avatar" src="https://avatars.githubusercontent.com/u/34713275?s=400&u=e57687047911b1e9855c2dc012430c447af72773&v=4">
+    </div>
+    <h5 class="trm-name trm-mb-15">
+        HuianYuan
+    </h5>
+    
+        <div class="trm-label">
+            I`m
+            <span class="trm-typed-text">
+                <!-- Words for theme.user.typedText -->
+            </span>
+        </div>
+    
+</div>
+<!-- card header end -->
+                <!-- sidebar social -->
+
+<div class="trm-divider trm-mb-40 trm-mt-40"></div>
+<div class="trm-social">
+    
+        <a href="https://github.com/Huianyuan" title="github" rel="nofollow" target="_blank">
+            <i class="iconfont fab fa-github"></i>
+        </a>
+    
+</div>
+
+<!-- sidebar social end -->
+                <!-- info -->
+<div class="trm-divider trm-mb-40 trm-mt-40"></div>
+<ul class="trm-table trm-mb-20">
+    
+        <li>
+            <div class="trm-label">
+                地址:
+            </div>
+            <div class="trm-label trm-label-light">
+                上海
+            </div>
+        </li>
+    
+</ul>
+<!-- info end -->
+
+                
+    <div class="trm-divider trm-mb-40 trm-mt-40"></div>
+    <!-- action button -->
+    <div class="text-center">
+        <a href="mailto:452970841@qq.com" class="trm-btn">
+            联系我
+            <i class="iconfont far fa-envelope"></i>
+        </a>
+    </div>
+    <!-- action button end -->
+
+            </div>
+            <div name="tabs-toc" class="trm-tabs-item active">
+                <div class="post-toc">
+    <ol class="toc"><li class="toc-item toc-level-2"><a rel="nofollow" class="toc-link" href="#表锁有两种模式："  data-scroll-to="#表锁有两种模式："><span class="toc-number">1.</span> <span class="toc-text">表锁有两种模式：</span></a></li><li class="toc-item toc-level-2"><a rel="nofollow" class="toc-link" href="#表级锁有哪些使用场景："  data-scroll-to="#表级锁有哪些使用场景："><span class="toc-number">2.</span> <span class="toc-text">表级锁有哪些使用场景：</span></a></li><li class="toc-item toc-level-2"><a rel="nofollow" class="toc-link" href="#MySQL哪些命令会发生表级锁："  data-scroll-to="#MySQL哪些命令会发生表级锁："><span class="toc-number">3.</span> <span class="toc-text">MySQL哪些命令会发生表级锁：</span></a></li><li class="toc-item toc-level-2"><a rel="nofollow" class="toc-link" href="#MySQL表锁风险点"  data-scroll-to="#MySQL表锁风险点"><span class="toc-number">4.</span> <span class="toc-text">MySQL表锁风险点</span></a></li><li class="toc-item toc-level-2"><a rel="nofollow" class="toc-link" href="#什么是行锁"  data-scroll-to="#什么是行锁"><span class="toc-number">5.</span> <span class="toc-text">什么是行锁</span></a></li><li class="toc-item toc-level-2"><a rel="nofollow" class="toc-link" href="#MySQL行锁有哪些使用场景"  data-scroll-to="#MySQL行锁有哪些使用场景"><span class="toc-number">6.</span> <span class="toc-text">MySQL行锁有哪些使用场景</span></a></li><li class="toc-item toc-level-2"><a rel="nofollow" class="toc-link" href="#MySQL哪些命令会导致发生行锁"  data-scroll-to="#MySQL哪些命令会导致发生行锁"><span class="toc-number">7.</span> <span class="toc-text">MySQL哪些命令会导致发生行锁</span></a></li><li class="toc-item toc-level-2"><a rel="nofollow" class="toc-link" href="#MySQL行锁有什么风险点？"  data-scroll-to="#MySQL行锁有什么风险点？"><span class="toc-number">8.</span> <span class="toc-text">MySQL行锁有什么风险点？</span></a></li><li class="toc-item toc-level-2"><a rel="nofollow" class="toc-link" href="#什么是乐观锁"  data-scroll-to="#什么是乐观锁"><span class="toc-number">9.</span> <span class="toc-text">什么是乐观锁</span></a></li><li class="toc-item toc-level-2"><a rel="nofollow" class="toc-link" href="#乐观锁有哪些使用场景？"  data-scroll-to="#乐观锁有哪些使用场景？"><span class="toc-number">10.</span> <span class="toc-text">乐观锁有哪些使用场景？</span></a></li><li class="toc-item toc-level-2"><a rel="nofollow" class="toc-link" href="#乐观锁的缺点"  data-scroll-to="#乐观锁的缺点"><span class="toc-number">11.</span> <span class="toc-text">乐观锁的缺点</span></a></li><li class="toc-item toc-level-2"><a rel="nofollow" class="toc-link" href="#什么是悲观锁？"  data-scroll-to="#什么是悲观锁？"><span class="toc-number">12.</span> <span class="toc-text">什么是悲观锁？</span></a></li><li class="toc-item toc-level-2"><a rel="nofollow" class="toc-link" href="#MySQL悲观锁适用哪些场景？"  data-scroll-to="#MySQL悲观锁适用哪些场景？"><span class="toc-number">13.</span> <span class="toc-text">MySQL悲观锁适用哪些场景？</span></a></li><li class="toc-item toc-level-2"><a rel="nofollow" class="toc-link" href="#MySQL如何使用悲观锁"  data-scroll-to="#MySQL如何使用悲观锁"><span class="toc-number">14.</span> <span class="toc-text">MySQL如何使用悲观锁</span></a></li><li class="toc-item toc-level-2"><a rel="nofollow" class="toc-link" href="#意向锁怎么支持表锁和行锁并存？"  data-scroll-to="#意向锁怎么支持表锁和行锁并存？"><span class="toc-number">15.</span> <span class="toc-text">意向锁怎么支持表锁和行锁并存？</span></a></li><li class="toc-item toc-level-2"><a rel="nofollow" class="toc-link" href="#意向锁的兼容互斥性"  data-scroll-to="#意向锁的兼容互斥性"><span class="toc-number">16.</span> <span class="toc-text">意向锁的兼容互斥性</span></a></li></ol>
+</div>
+            </div>
+        </div>
+    
+    </div>
+</div>
+                    <!-- main card end -->
+                </div>
+            
+            <div id="page-content" class="col-lg-8">
+                <div class="trm-content" id="trm-content">
+                    <div data-scroll data-scroll-repeat data-scroll-offset="500" id="about-triger"></div>
+
+                    <div id="post-info" class="row hidden-sm">
+    <div class="col-sm-4">
+        <div class="trm-card trm-label trm-label-light text-center">
+            <i class="iconfont far fa-calendar-alt trm-icon"></i><br>
+            06/20
+        </div>
+    </div>
+    <div class="col-sm-4">
+        <div class="trm-card trm-label trm-label-light text-center">
+            <i class="iconfont far fa-clock trm-icon"></i><br>
+            21:32
+        </div>
+    </div>
+    <div class="col-sm-4">
+        <div id="post-author" class="trm-card trm-label trm-label-light text-center">
+            <i class="iconfont far fa-user trm-icon"></i><br>
+            HuianYuan
+        </div>
+    </div>
+</div>
+<div class="trm-card ">
+    <article id="article-container" class="trm-publication">
+    <p>总分类如下：</p>
+<ul>
+<li>粒度分类<ul>
+<li>全局锁</li>
+<li>表锁</li>
+<li>行锁</li>
+</ul>
+</li>
+<li>模式分类<ul>
+<li>乐观锁</li>
+<li>悲观锁</li>
+</ul>
+</li>
+<li>属性分类<ul>
+<li>共享锁</li>
+<li>排它锁</li>
+</ul>
+</li>
+<li>状态分类<ul>
+<li>意向共享</li>
+<li>意向排他</li>
+</ul>
+</li>
+<li>算法分类<ul>
+<li>间隙锁</li>
+<li>记录锁</li>
+<li>临键锁</li>
+</ul>
+</li>
+</ul>
+<h1 id="1-全局锁"><a href="#1-全局锁" class="headerlink" title="1.全局锁"></a>1.全局锁</h1><p>MySQL全局锁是针对<strong>整个数据库</strong>的锁。最常用的全局锁是<strong>读锁和写锁</strong>。</p>
+<ol>
+<li>读锁（共享锁）：它阻止其他用户更新数据，但允许他们读取数据。这在你需要在一段时间内保持数据一致性时很有用。</li>
+<li>写锁（排他锁）：它阻正其他用户读取和更新数据。这在你需要修改一些大量的数据，并且不希望其他用户在这段时间内干扰时很有用。</li>
+</ol>
+<p>MySQL全局锁的典型使用场景是，进行一些需要确保整个数据库一致性的操作，例如全库备份、全库导出等。  </p>
+<p>在MySql中，可以使用<code>FLUSH TABLES WITH READ LOCK(FTWRL)</code>​语句来添加全局读锁，这将阻止其他线程进行更新操作。使用<code>UNLOCK TABLES</code>​语句来释放锁定。  </p>
+<p>请注意，全局锁的开销非常大，因为它会阻止其他所有的数据修改操作，并且在高并发情况下可能导致大量的线程等待锁定。因此，你应该尽量避免在生产环境中使用全局锁，或者尽量减少全局锁的持有时间。</p>
+<p>虽然全局锁有其应用场景，但是过度使用或不正确使用全局锁可能导致性能问题。因此，根据应用的特性和需求选择适合的锁策略是很重要的。对于大多数应用，优先使用更精细粒度的锁，如行锁和表锁，可以更有效地处理并发请求，同时避免全局锁的开销。</p>
+<p>‍</p>
+<h1 id="2-表级锁"><a href="#2-表级锁" class="headerlink" title="2.表级锁"></a>2.表级锁</h1><p>加锁快，不会出现死锁；锁定粒度大，发生锁冲突的概率最高，并发度最低。  </p>
+<h2 id="表锁有两种模式："><a href="#表锁有两种模式：" class="headerlink" title="表锁有两种模式："></a>表锁有两种模式：</h2><ol>
+<li>表共享读锁（Table Read Lock）：又称为表读锁，允许一个事务锁定的表进行读取操作，不允许其他事务对其进行写操作，但是可以进行读操作。读锁之间是不会互相阻塞的。</li>
+<li>表独占写锁（TableWriteLock）：又称为表写锁，允许一个事务锁定的表进行读取和写入（更新）操作，但是其他任何事务都不能再对该表进行任何操作，必须等待表写锁结束。写锁会阻塞其他所有锁，包括读锁和写锁。</li>
+</ol>
+<p>在MySQL中，对MyISAM表的读操作，会自动加上读锁，对MyISAM表的写操作，会自动加上写锁。</p>
+<p>InnoDB引擎在必要情况下会使用表锁，但主要是使用行锁来实现多版本并发控制(MVCC），它能提供更好的并发性能和更少的锁冲突。  </p>
+<p>总的来说，表锁适用于<strong>读操作多、写操作少</strong>的应用，当并发争用不是特别激烈，以及<strong>记录级锁</strong>并发控制开销<strong>大于访问冲突开销</strong>的情况。在并发度高，或者写操作较多的情况下，表锁可能会成为瓶颈。</p>
+<h2 id="表级锁有哪些使用场景："><a href="#表级锁有哪些使用场景：" class="headerlink" title="表级锁有哪些使用场景："></a>表级锁有哪些使用场景：</h2><ol>
+<li>读密集型应用：如果你的应用主要进行读取操作，很少进行写入操作，那么使用表级锁可能是一个好选择。因为表级读锁不会阻塞其他的读锁，所以这种场景下表级锁能够提供很高的性能。</li>
+<li>写操作不频繁的场景：表级锁对写操作的处理并不高效，因为一个写锁会阻塞所有其他的锁，无论它们是读锁还是写锁。但是，如果你的应用不需要频繁地进行写操作，或者可以容忍写操作的延迟，那么使用表级锁可能是可行的。</li>
+<li>数据量不大的简单应用：如果数据库的数据量不大，那么即使在写操作中，由于锁定整张表，对性能的影响也不大。</li>
+<li>全表更新或者删除；在某些情况下，可能需要对一张表进行全表的更新或者删除操作，例如，删除表中的所有记录，或者更新表中所有记录的某个字段的值。在这种情况下，使用表级锁是合适的。</li>
+</ol>
+<h2 id="MySQL哪些命令会发生表级锁："><a href="#MySQL哪些命令会发生表级锁：" class="headerlink" title="MySQL哪些命令会发生表级锁："></a>MySQL哪些命令会发生表级锁：</h2><ol>
+<li><code>ALTER TABLE</code>​：这个命令用于更改表的结构，如添加列、删除列、改变列的类型等。执行这个命令的时候，MySQL需要锁定整个表以防止在更改过程中有新的数据写入。</li>
+<li><code>DROP TABLE</code>​ 和 <code>TRUNCATE TABLE</code>​：这两个命令都会导致表级锁。<code>DROP TABLE</code>​命令会删除整个表，而<code>TRUNCATE TABLE</code>​命令会删除表中的所有数据。在执行这些命令的时候，MySQL需要锁定整个表以防止在删除过程中有新的数据写入。</li>
+<li><code>LOCK TABLES</code>​：这个命令可以显式地为一个或多个表加上读锁或写锁，<code>LOCK TABLES</code>​命令后面可以跟上一系列的表名和锁模式，用来指定需要锁定哪些表，以及使用什么样的锁模式。例如，<code>LOCK TABLES t1 WRITE, t2 READ;</code>​命令会给表t1加上写锁，给表t2加上读锁。</li>
+<li>全表扫描或大范围扫描：对于MyISAM存储引擎，全表扫描或大范围扫描会触发表级锁。</li>
+<li><code>FLUSH TABLES WITH READ LOCK(FTWRL）</code>​：这个命令可以给所有表加上全局读锁，其他会话在此期间不能对数据进行修改。</li>
+</ol>
+<p>请注意，InnoDB存储引擎主要使用行级锁，并在一些情况下使用表级锁，比如在执行某些<code>ALTER TABLE</code>​命令或者<code>LOCK TABLES</code>​命令时。MyISAM存储引擎只支持表级锁。</p>
+<h2 id="MySQL表锁风险点"><a href="#MySQL表锁风险点" class="headerlink" title="MySQL表锁风险点"></a>MySQL表锁风险点</h2><ol>
+<li>性能下降：因为表锁会锁定整个表，所以在高并发的环境中，它可能导致大量的请求阻塞，从而降低性能。对于读取和写入混合密集的负载，表锁可能会成为一个性能瓶颈。</li>
+<li>并发性能差：表锁的最大问题在于其并发性能。一旦一个线程对表获得了写锁，其他线程的任何读写操作都会被阻塞，直到写锁被释放。同样的，如果一个读锁被持有，那么其他的写操作将被阻塞。这就使得并发性能大大降低。</li>
+<li>可能导致锁等待和超时：在高并发的环境中，由于表级锁的粒度较大，可能会有很多线程在等待锁，如果等待的时间过长，可能会导致锁超时，进一步影响应用的性能和可用性。</li>
+<li>写操作影响大：如果一个长时间运行的写操作（比如大数据量的UPDATE或者INSERT语句）获取了写锁，那么会阻塞所有其他的读操作和写操作，直到这个写操作完成。</li>
+<li>死锁的可能性：虽然表锁本身不会出现死锁，但在多表操作中，如果没有按照一定的顺序获得锁，可能会导致死锁。</li>
+</ol>
+<p>为了避免这些问题，我们通常会选择InnoDB存储引擎，它主要使用行级锁，可以提供更好的并发性能，并且在一定程度上减少了锁争用的问题。而且，InnoDB还支持事务，可以保证数据的一致性和完整性。在实际应用中，我们应该根据具体的业务需求和系统负载，选择合适的存储引擎和锁策略。</p>
+<h1 id="3-行级锁"><a href="#3-行级锁" class="headerlink" title="3.行级锁"></a>3.行级锁</h1><h2 id="什么是行锁"><a href="#什么是行锁" class="headerlink" title="什么是行锁"></a>什么是行锁</h2><p>行级锁是MySQL中的一种锁定机制，它可以对数据库表中的单独一行进行锁定。相比于表级锁和页锁，行级锁的粒度更小，因此在处理高并发事务时，能提供更好的并发性能和更少的锁冲突。然而，行级锁也需要更多的内存和CPU资源，因为需要对每一行都进行管理。<br>在MySQL中，行级锁主要由InnoDB存储引擎提供。InnoDB支持两种类型的行级锁：共享锁(S锁）和排他锁（X锁）。</p>
+<ol>
+<li>共享锁（S锁）：共享锁也称为读锁，它允许一个事务读取一行数据。当一行数据被共享锁锁定时，其他事务可以读取这行数据，但不能对其进行修改。</li>
+<li>排他锁（X锁）：排他锁也称为写锁，它允许一个事务读取和修改一行数据。当一行数据被排他锁锁定时，其他事务不能读取也不能修改这行数据。</li>
+</ol>
+<p>在实际使用中，InnoDB还提供了一种名为“间隙锁”（GapLock）的特性。间隙锁不仅锁定一个具体的行，还锁定它前后的“间隙”，即这一行之前的行和之后的行之间的空间。间隙锁可以防止其他事务插入新的行到已锁定行的前后，从而可以解决一些并发问题。</p>
+<p>值得注意的是，<strong>行级锁只在事务中有效</strong>，也就是说，只有在一个事务开始（BEGIN）<strong>后</strong>并在事务提交（COMMIT）或回滚（ROLLBACK）之<strong>前</strong>，才能对数据行进行锁定。如果在非事务环境中执行SQL语句，那么InnoDB会在语句执行结束后立即释放所有的锁。</p>
+<h2 id="MySQL行锁有哪些使用场景"><a href="#MySQL行锁有哪些使用场景" class="headerlink" title="MySQL行锁有哪些使用场景"></a>MySQL行锁有哪些使用场景</h2><p>MySQL中的行级锁（Row Level Locks）通常在以下几种场景中被使用：</p>
+<ol>
+<li>高并发读写操作：在需要高并发读写操作的场景中，行级锁可以提高性能和并发性，因为它允许多个事务并发地操作不同的行。</li>
+<li>单行操作：对于需要操作单行数据的SQL语句（例如基于主键或者唯一索引的UPDATE、DELETE和INSERT语句），行级锁可以提供较好的并发性和性能。</li>
+<li>短期锁：在需要对数据行进行短时间锁定的情况下，行级锁可以防止长时间阻塞其他事务。</li>
+<li>实现并发控制：在需要确保数据一致性和隔离性的事务中，行级锁是实现并发控制的重要机制。</li>
+<li>复杂的事务处理：在需要对多行数据进行复杂处理的事务中，可以使用行级锁来锁定这些行，防止在事务处理过程中数据被其他事务修改。</li>
+</ol>
+<p>使用行级锁需要注意，由于行级锁的锁定粒度较小，它可能会消耗更多的系统资源（例如内存和CPU），特别是在处理大量数据时。此外，使用行级锁也可能导致死锁，需要使用合适的策略来避免死锁，例如在事务中按照一定的顺序锁定行。</p>
+<h2 id="MySQL哪些命令会导致发生行锁"><a href="#MySQL哪些命令会导致发生行锁" class="headerlink" title="MySQL哪些命令会导致发生行锁"></a>MySQL哪些命令会导致发生行锁</h2><p>在MySQL中，主要是InnoDB存储引擎提供了行级锁（Row Level Locking）。一般来说，以下这些类型的操作会导致InnoDB对数据行进行加锁：  </p>
+<ol>
+<li><code>SELECT..FOR UPDATE</code>​：这种查询会对选定的行添加一个排他锁（X锁），这意味着其他事务不能修改这些行，也不能对这些行添加共享锁。</li>
+<li><code>SELECT..LOCK IN SHARE MODE</code>​：这种查询会对选定的行添加一个共享锁（S锁），这意味着其他事务不能修改这些行，但可以对这些行添加共享锁。</li>
+<li><code>INSERT</code>​：插入操作会对新添加的行添加一个排他锁（X锁）。</li>
+<li><code>UPDATE</code>​：更新操作会对被更新的行添加一个排他锁（X锁）。</li>
+<li><code>DELETE</code>​：删除操作会对被删除的行添加一个排他锁（X锁）。</li>
+</ol>
+<p>这些加锁操作都是在事务中进行的，即只有在事务开始(BEGIN）后并在事务提交(COMMIT）或回滚（ROLLBACK）之前，才会对数据行进行加锁。如果在非事务环境中执行上述SQL语句，那么InnoDB会在语句执行结束后立即释放所有的锁。</p>
+<p>请注意，加锁的粒度和范围取决于<code>WHERE子句</code>​中用到的索引。如果<code>WHERE子句</code>​中用到了<code>唯一索引</code>​（例如主键索引），那么InnoDB只会锁定匹配的行。如果没有用到唯一索引，那么InnoDB可能会锁定更多的行，甚至是整个表，这就可能导致锁冲突和性能问题。  </p>
+<p>此外，InnoDB还支持间隙锁（Gap Locks）和临键锁（Next-Key Locks），这两种锁都可以在某些情况下提供更好的并发控制。</p>
+<h2 id="MySQL行锁有什么风险点？"><a href="#MySQL行锁有什么风险点？" class="headerlink" title="MySQL行锁有什么风险点？"></a>MySQL行锁有什么风险点？</h2><p>尽管行级锁（Row-LevelLocking）可以提供高并发性并减少锁冲突，但在使用过程中也可能遇到一些风险和问题，主要包括以下几点：</p>
+<ol>
+<li>死锁：当两个或更多的事务相互等待对方释放资源时，就会发生死锁。例如，事务1锁定了行A并试图锁定行B，同时事务2锁定了行B并试图锁定行A，这就形成了死锁。MySQL会检测到死锁并终止其中一个事务，但这仍可能导致性能问题和事务失败。</li>
+<li>锁升级：如果一个事务试图锁定的行过多，InnoDB可能会将锁从行级升级为表级，这就可能导致更多的锁冲突。</li>
+<li>锁等待：如果一个事务已经锁定了某行，其他试图访问这行的事务就必须等待，这可能导致性能下降。如果有大量的事务在等待锁，就可能导致系统出现性能瓶颈。</li>
+<li>资源消耗：行级锁需要更多的内存来存储锁信息，而且需要更多的CPU时间来处理锁请求和释放锁。如果数据库中的行数非常多，或者并发事务的数量非常多，这可能会导致显著的资源消耗。</li>
+<li>难以调试和排查：由于行级锁的粒度较小，如果出现性能问题或锁冲突，可能需要复杂的调试和排查工作来找出问题的原因。</li>
+<li>事务隔离级别：不同的事务隔离级别会影响锁的行为和性能，可能需要根据具体的应用场景来调整事务隔离级别。</li>
+</ol>
+<p>为了避免上述问题，需要合理地设计数据库表和索引，合理地编写SQL语句，合理地管理事务，以及合理地设置事务隔离级别。</p>
+<h1 id="4-乐观锁"><a href="#4-乐观锁" class="headerlink" title="4.乐观锁"></a>4.乐观锁</h1><h2 id="什么是乐观锁"><a href="#什么是乐观锁" class="headerlink" title="什么是乐观锁"></a>什么是乐观锁</h2><p>乐观锁（Optimistic Locking）是一种在数据库操作中用于处理并发问题的技术。它的基本思想是假设在多个事务同时访问同一条数据时，冲突发生的概率较低，因此在操作数据时不会立即进行锁定，而是在提交数据更改时检查是否有其他事务修改了这条数据。如果没有，就提交更改，否则就回滚事务。</p>
+<p>在MySQL中，乐观锁并没有内置的实现，但是可以通过一些编程技巧来实现。一种常见的实现方式是使用版本号（或时间戳）字段。每当一条记录被修改时，就增加版本号(或更新时间戳）。在更新记录时，先检查版本号(或时间戳）是否和读取记录时的版本号(或时间戳）一致，如果一致则执行更新并增加版本号（或更新时间戳），否则就拒绝更新。这样就可以保证只有当记录没有被其他事务修改时，当前事务的更改才会被提交。  </p>
+<p>乐观锁的优点在于，由于大部分时间都不需要锁定，所以在冲突较少的情况下可以获得较高的并发性能。然而，如果冲突较多，那么乐观锁可能会导致大量的事务回滚，从而影响性能。因此，选择使用乐观锁还是其他锁定技术，需要根据实际的并发情况和性能需求来决定。</p>
+<h2 id="乐观锁有哪些使用场景？"><a href="#乐观锁有哪些使用场景？" class="headerlink" title="乐观锁有哪些使用场景？"></a>乐观锁有哪些使用场景？</h2><p>乐观锁（Optimistic Locking）是一种对并发控制的策略，适用于以下的应用场景：</p>
+<ol>
+<li>低冲突环境：在多数情况下，数据并发修改的冲突较低，即同一时间内，同一条数据不会被多个事务同时修改。</li>
+<li>读多写少的场景：在读操作远多于写操作的情况下，乐观锁可以避免由于频繁的读操作导致的不必要的锁定开销。</li>
+<li>短事务操作：如果数据库的事务都是简短并且快速完成的，那么使用乐观锁可以减少因为等待锁而导致的时间消耗。</li>
+<li>分布式系统：在分布式系统中，由于网络延迟等原因，事务冲突的可能性较低，因此乐观锁是一个合适的选择。</li>
+<li>互联网应用：对于互联网应用，如电子商务网站，用户浏览商品和下单等操作，多数情况下是读取操作，且并发修改同一条数据的几率较小，因此使用乐观锁可以提高系统性能。</li>
+</ol>
+<p>需要注意的是，如果事务冲突的可能性较高，或者需要长时间锁定某个资源，那么使用乐观锁可能会导致大量的事务冲突和回滚，这种情况下，悲观锁或者其他并发控制技术可能会是更好的选择。</p>
+<h2 id="乐观锁的缺点"><a href="#乐观锁的缺点" class="headerlink" title="乐观锁的缺点"></a>乐观锁的缺点</h2><ol>
+<li>冲突检测：在高并发的环境中，乐观锁可能会导致大量的冲突。因为乐观锁只有在提交事务时才检查是否有冲突，如果多个事务同一时间操作同一行，那么只有一个事务能提交成功，其他的事务都需要回滚并重新尝试。</li>
+<li>处理开销：在冲突发生时，需要进行回滚和重试，这可能会增加系统的开销。在一些场景中，这可能会导致性能下降。</li>
+<li>版本管理：乐观锁通常通过版本号（或时间戳）来检测冲突。这就要求系统能够正确地管理这些版本号，否则可能会导致错误的冲突检测。</li>
+<li>编程复杂性：使用乐观锁需要更复杂的编程，因为程序需要处理可能发生的冲突和重试。</li>
+</ol>
+<p>总的来说，乐观锁是一种有效的并发控制策略，但在冲突较多的情况下，可能会带来更大的开销和编程复杂性。因此，是否选择使用乐观锁，需要根据应用的具体需求和场景来决定。</p>
+<h1 id="5-悲观锁"><a href="#5-悲观锁" class="headerlink" title="5.悲观锁"></a>5.悲观锁</h1><h2 id="什么是悲观锁？"><a href="#什么是悲观锁？" class="headerlink" title="什么是悲观锁？"></a>什么是悲观锁？</h2><p>悲观锁（Pessimistic Locking）是一种并发控制的方法，基于一个假设：认为数据在并发处理过程中很可能会出现冲突。因此，为了保证数据的完整性和一致性，每次在读写数据时都会先加锁，这样可以避免其他事务进行并发的读写操作。  </p>
+<p>是否使用悲观锁需要根据应用的具体需求和场景来决定。在冲突较少，但需要保证数据完整性和一致性的情况下，可以考虑使用悲观锁。  </p>
+<h2 id="MySQL悲观锁适用哪些场景？"><a href="#MySQL悲观锁适用哪些场景？" class="headerlink" title="MySQL悲观锁适用哪些场景？"></a>MySQL悲观锁适用哪些场景？</h2><p>悲观锁的策略是假设数据在并发处理过程中会发生冲突，因此在进行任何读写操作前，都会预先加锁。这种策略在某些特定的应用场景下是比较有优势的，主要包括：</p>
+<ol>
+<li>写操作较多的场景：如果一个系统中的写操作比读操作多，或者说写操作占主导，那么悲观锁可能是一个比较好的选择。因为在这种场景下，数据冲突的可能性相对较高，预先加锁可以确保数据的完整性和一致性。</li>
+<li>并发冲突高的场景：在并发冲突较高的场景，使用悲观锁可以避免重复尝试操作，提高系统的整体效率。</li>
+<li>业务需要强一致性的场景：在一些需要保证数据强一致性的业务场景下，例如银行转账等金融业务，通常会选择使用悲观锁，以确保在任何情况下数据的一致性和准确性。</li>
+</ol>
+<p>但是值得注意的是，悲观锁也可能引入死锁等问题，也可能因为锁定过程中事务长时间等待而影响性能。因此，选择和使用悲观锁都需要根据具体业务场景和需求来进行。</p>
+<h2 id="MySQL如何使用悲观锁"><a href="#MySQL如何使用悲观锁" class="headerlink" title="MySQL如何使用悲观锁"></a>MySQL如何使用悲观锁</h2><p>在MySQL中，悲观锁主要通过以下两种SQL语句实现：</p>
+<ol>
+<li><code>SELECTFOR UPDATE</code>​：这个语句会在所选的行上设置<code>排他锁</code>​（Exclusive Lock）。在锁定期间，其他事务无法修改这些行，也无法在这些行上设置新的排他锁或共享锁。</li>
+<li><code>SELECT..LOCK IN SHARE MODE</code>​：这个语句会在所选的行上设置<code>共享锁</code>​（Shared Lock）。在锁定期间，其他事务可以读取这些行，但不能修改这些行，也不能在这些行上设雲置排他锁。</li>
+</ol>
+<p>Q：悲观锁的缺点</p>
+<ol>
+<li>性能开销：在悲观锁机制下，锁定资源的操作会影响到系统性能。因为每次对数据的读写都需要进行加锁和解锁的操作，这会增加系统的开销，特别是在高并发的环境下，锁的竟争更是会严重影响到系统性能。</li>
+<li>并发度降低：由于悲观锁在操作数据前就会加锁，这就导致了在同一时间，只有一个事务能操作数据，其他事务只能等待，大大降低了系统的并发度。</li>
+<li>死锁：悲观锁在并发事务中可能导致死锁的情况发生。当两个或者更多的事务互相等待对方释放锁时，就可能发生死锁。虽然数据库系统通常能够检测并解决死锁，但这会导致事务回滚，增加了系统的开销。</li>
+<li>超时锁：如果一个事务长时间持有锁而不释放，可能导致其他等待锁的事务超时。这不仅可能导致等待的事务失败，还可能影响到整个系统的稳定性。</li>
+</ol>
+<p>因此，虽然悲观锁能有效地防止数据冲突，但由于其在并发处理中的限制，以及可能引发的问题，如死锁、竞争锁和超时锁，我们需要根据具体的应用场景和需求，来权衡是否使用悲观锁。</p>
+<h1 id="6-意向共享锁和意向排它锁"><a href="#6-意向共享锁和意向排它锁" class="headerlink" title="6.意向共享锁和意向排它锁"></a>6.意向共享锁和意向排它锁</h1><p>意向锁是<strong>表锁</strong>，为了协调<strong>行锁和表锁</strong>的关系，支持<strong>多粒度</strong>（表锁与行锁）的锁并存。  </p>
+<p><strong>作用</strong>：当有事务A有行锁时，MySQL会自动为该表添加意向锁，事务B如果想申请整个表的写锁，那么不需要遍历每一行判断是否存在行锁，而直接判断是否存在意向锁，增强性能。  </p>
+<p>为什么意向锁是表级锁呢？  </p>
+<p>当我们需要加一个排他锁时，需要根据意向锁去判断表中有没有数据行被锁定（行锁）；</p>
+<ol>
+<li>如果意向锁是行锁，则需要遍历每一行数据去确认；</li>
+<li>如果意向锁是表锁，则只需要判断一次即可知道有没数据行被锁定，提升性能。</li>
+</ol>
+<h2 id="意向锁怎么支持表锁和行锁并存？"><a href="#意向锁怎么支持表锁和行锁并存？" class="headerlink" title="意向锁怎么支持表锁和行锁并存？"></a>意向锁怎么支持表锁和行锁并存？</h2><ol>
+<li>首先明确并存的概念是指数据库同时支持表、行锁，而不是任何情况都支持一个表中同时有一个事务A持有行锁、又有一个事务B持有表锁，因为表一旦被上了一个表级的写锁，肯定不能再上一个行级的锁。</li>
+<li>如果事务A对某一行上锁，其他事务就不可能修改这一行。这与“事务B锁住整个表就能修改表中的任意一行”形成了冲突。所以，没有意向锁的时候，让行锁与表锁共存，就会带来很多问题。于是有了意向锁的出现，如前面所言，数据库不需要在检查每一行数据是否有锁，而是直接判断一次意向锁是否存在即可，能提升很多性能。</li>
+</ol>
+<h2 id="意向锁的兼容互斥性"><a href="#意向锁的兼容互斥性" class="headerlink" title="意向锁的兼容互斥性"></a>意向锁的兼容互斥性</h2><table>
+<thead>
+<tr>
+<th></th>
+<th>意向共享锁(IS)</th>
+<th>意向排他锁(IX)</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>共享锁(S）</td>
+<td>兼容</td>
+<td>互斥</td>
+</tr>
+<tr>
+<td>排他锁(X)</td>
+<td>互斥</td>
+<td>互斥</td>
+</tr>
+</tbody></table>
+<h1 id="7-临键锁"><a href="#7-临键锁" class="headerlink" title="7.临键锁"></a>7.临键锁</h1><p>什么是临键锁  </p>
+<p><code>Next-Key</code>​可以理解为一种特殊的<strong>间隙锁</strong>，也可以理解为一种特殊的算法。通过临建锁可以解决<strong>幻读</strong>的问题。每个数据行上的<strong>非唯一索引列</strong>上都会存在一把<strong>临键锁</strong>，当某个事务持有该数据行的临键锁时，会锁住一段<code>左开右闭</code>​区间的数据。需要强调的一点是，InnoDB中<strong>行级锁</strong>是基于<strong>索引</strong>实现的，临键锁只与非唯一索引列有关，在唯一索引列（包括主键列）上不存在临键锁。</p>
+<h1 id="8-记录锁"><a href="#8-记录锁" class="headerlink" title="8.记录锁"></a>8.记录锁</h1><p>什么是记录锁  </p>
+<p>记录锁（<code>Record Lock</code>​）是MySQL数据库中InnoDB存储引擎的一种锁定机制，主要用于锁定和控制对单个行记录的访问。记录锁是在索引记录上设置的，对于表没有主键或唯一索引的表，InnoDB会生成一个隐藏的聚簇索引，并在这个隐藏索引上加锁。  </p>
+<p>在实际操作中，记录锁通常会在进行数据查询、更新或删除等操作时自动被数据库引擎应用。  </p>
+<p>例如，当执行以下查询时，MySQL会在Orders表的OrderID为1的行上设置记录锁：</p>
+<p><code>SELECT * FROM Orders WHERE OrderID=1 FOR UPDATE;</code>​</p>
+<p>记录锁主要有两种类型：共享锁（Shared Locks）和排他锁(Exclusive Locks）。共享锁（S锁）允许多个事务同时读取同一数据，但阻止任何事务进行写操作（包括改事务自身）。  </p>
+<p>排他锁（X锁），又称写锁，当一个事务持有排他锁时，其他事务不能读取也不能写入被锁定的数据。</p>
+<p>‍</p>
+
+</article>
+    
+    
+
+</div>
+<div id="post-next-prev" class="row">
+    <div class="col-lg-12">
+        <!-- title -->
+        <h5 class="trm-title-with-divider">
+            其他文章
+            <span data-number="02"></span>
+        </h5>
+    </div>
+    
+    
+        <div class="col-lg-6">
+    <div class="trm-blog-card trm-scroll-animation" data-scroll data-scroll-offset="40">
+        <a href="/2023/05/23/2023.05.23.057.Git%E4%BD%BF%E7%94%A8%E6%8C%87%E5%8D%97/" class="trm-cover-frame trm-anima-link">
+            
+            
+                <div class="trm-cover-img" data-random-img></div>
+            
+        </a>
+        
+        <div class="trm-card-descr">
+            <div class="trm-label trm-category trm-mb-20">
+                <a href=" /categories/%E6%8C%87%E5%8D%97/">
+                    指南
+                </a>
+            </div>
+            <h5>
+                <a href="/2023/05/23/2023.05.23.057.Git%E4%BD%BF%E7%94%A8%E6%8C%87%E5%8D%97/" class="trm-anima-link">
+                    Git使用指南
+                </a>
+            </h5>
+            <div class="trm-divider trm-mb-20 trm-mt-20"></div>
+            <ul class="trm-card-data trm-label">
+                <li>23/05/23</li>
+                <li>16:12</li>
+                
+                
+            </ul>
+        </div>
+    </div>
+</div>
+    
+</div>
+
+    
+
+
+
+                    <div class="trm-divider footer-divider"></div>
+
+                    <!-- footer -->
+                    <footer class="trm-scroll-animation" data-scroll data-scroll-offset="50">
+
+    
+
+    
+
+    
+        <div class="trm-footer-item">
+            <span>
+                由 <a href="https://hexo.io" target="_blank" rel="noopener">Hexo</a> 驱动 v6.3.0
+            </span>
+            <span class="footer-separator" data-separator=" | "></span>
+            <span> 
+                主题 - 
+                <a rel="noopener" href='https://github.com/MaLuns/hexo-theme-async' target='_blank'>Async</a>
+                v2.0.9
+            </span>
+        </div>
+      
+
+     
+
+     
+</footer>
+ 
+                    <!-- footer end -->
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+            <!-- body end -->
+
+            <div class="trm-fixed-container" data-scroll data-scroll-sticky data-scroll-target=".locomotive-scroll__sticky-target" data-scroll-offset="-10">
+    
+        <div class="trm-fixed-btn" data-title="阅读模式" onclick="asyncFun.switchReadMode()">
+            <i class="iconfont fas fa-book-reader"></i>
+        </div>
+    
+    
+        <div class="trm-fixed-btn" data-title="单栏和双栏切换" onclick="asyncFun.switchSingleColumn()">
+            <i class="iconfont fas fa-arrows-alt-h"></i>
+        </div>
+    
+    <div id="trm-back-top" class="trm-fixed-btn" data-title="回到顶部">
+        <i class="iconfont fas fa-arrow-up"></i>
+    </div>
+</div>
+          </div>
+        </div>
+      </div>
+      <!-- scroll container end -->
+
+  </div>
+  <!-- app wrapper end -->
+
+  
+  <!-- Plugin -->
+
+
+
+
+    
+    
+<script src="https://npm.elemecdn.com/locomotive-scroll@4.1.4/dist/locomotive-scroll.min.js"></script>
+
+    
+<script src="https://npm.elemecdn.com/@fancyapps/ui@4.0/dist/fancybox.umd.js"></script>
+
+    
+
+    
+        <script src="/js/plugins/typing.js?v=2.0.9"></script>
+    
+
+    
+
+    <!-- 数学公式 -->
+    
+
+    <!-- 评论插件 -->
+    
+        
+
+        
+    
+
+
+
+<!-- CDN -->
+
+
+    
+
+    
+
+    
+
+
+
+
+    <!-- Service Worker -->
+    
+    <!-- baidu push -->
+    
+
+
+<script id="async-script" src="/js/main.js?v=2.0.9"></script>
+
+</body>
+
+</html>
