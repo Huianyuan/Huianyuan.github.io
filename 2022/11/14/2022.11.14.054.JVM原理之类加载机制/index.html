@@ -1,398 +1,126 @@
 <!DOCTYPE html>
-<html lang="zh-Hans">
+<html lang='zh-Hans'>
 
 <head>
-  <meta http-equiv="content-type" content="text/html; charset=utf-8">
-<meta name="x5-fullscreen" content="true">
-<meta name="full-screen" content="yes">
-<meta name="theme-color" content="#317EFB" />
-<meta content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=0" name="viewport">
-<meta name="description" content="类加载子系统内存结构概述 ​ ‍ ‍ 类加载器与类的加载过程类加载器子系统作用：  类加载器子系统负责从文件系统或者网络中加载Class文件，class文件在文件开头有特定的文件标识。 ClassLoader只负责class文件的加载，至于它是否可以运行，则由Execution Engine决定。 加载的类信息存放于一块称为方法区的内存空间​。除了类的信息外，方法区中还会存放运行时常量池信息，可能">
+  <meta name="generator" content="Hexo 6.3.0">
+  <meta name="hexo-theme" content="https://github.com/xaoxuu/hexo-theme-stellar/tree/1.19.0">
+  <meta charset="utf-8">
+  
+
+  <meta http-equiv='x-dns-prefetch-control' content='on' />
+  <link rel='dns-prefetch' href='https://gcore.jsdelivr.net'>
+  <link rel="preconnect" href="https://gcore.jsdelivr.net" crossorigin>
+  <link rel='dns-prefetch' href='//unpkg.com'>
+
+  <meta name="renderer" content="webkit">
+  <meta name="force-rendering" content="webkit">
+  <meta http-equiv="X-UA-Compatible" content="IE=Edge,chrome=1">
+  <meta name="HandheldFriendly" content="True" >
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="theme-color" content="#f8f8f8">
+  
+  <title>JVM原理-类加载 - 惠安苑</title>
+
+  
+    <meta name="description" content="类加载子系统内存结构概述image    image​  ‍ ‍ 类加载器与类的加载过程类加载器子系统作用：  类加载器子系统负责从文件系统或者网络中加载Class文件，class文件在文件开头有特定的文件标识。 ClassLoader只负责class文件的加载，至于它是否可以运行，则由Execution Engine决定。 加载的类信息存放于一块称为方法区的内存空间​。除了类的信息外，方法区中还">
 <meta property="og:type" content="article">
 <meta property="og:title" content="JVM原理-类加载">
 <meta property="og:url" content="https://huianyuan.github.io.git/2022/11/14/2022.11.14.054.JVM%E5%8E%9F%E7%90%86%E4%B9%8B%E7%B1%BB%E5%8A%A0%E8%BD%BD%E6%9C%BA%E5%88%B6/index.html">
 <meta property="og:site_name" content="惠安苑">
-<meta property="og:description" content="类加载子系统内存结构概述 ​ ‍ ‍ 类加载器与类的加载过程类加载器子系统作用：  类加载器子系统负责从文件系统或者网络中加载Class文件，class文件在文件开头有特定的文件标识。 ClassLoader只负责class文件的加载，至于它是否可以运行，则由Execution Engine决定。 加载的类信息存放于一块称为方法区的内存空间​。除了类的信息外，方法区中还会存放运行时常量池信息，可能">
+<meta property="og:description" content="类加载子系统内存结构概述image    image​  ‍ ‍ 类加载器与类的加载过程类加载器子系统作用：  类加载器子系统负责从文件系统或者网络中加载Class文件，class文件在文件开头有特定的文件标识。 ClassLoader只负责class文件的加载，至于它是否可以运行，则由Execution Engine决定。 加载的类信息存放于一块称为方法区的内存空间​。除了类的信息外，方法区中还">
 <meta property="og:locale">
-<meta property="og:image" content="https://huianyuan.github.io.git/img/404.jpg">
-<meta property="og:image" content="https://huianyuan.github.io.git/img/404.jpg">
-<meta property="og:image" content="https://huianyuan.github.io.git/img/404.jpg">
-<meta property="og:image" content="https://huianyuan.github.io.git/img/404.jpg">
-<meta property="og:image" content="https://huianyuan.github.io.git/img/404.jpg">
-<meta property="og:image" content="https://huianyuan.github.io.git/img/404.jpg">
-<meta property="og:image" content="https://huianyuan.github.io.git/img/404.jpg">
-<meta property="og:image" content="https://huianyuan.github.io.git/img/404.jpg">
-<meta property="og:image" content="https://huianyuan.github.io.git/img/404.jpg">
-<meta property="og:image" content="https://huianyuan.github.io.git/img/404.jpg">
-<meta property="og:image" content="https://huianyuan.github.io.git/img/404.jpg">
-<meta property="og:image" content="https://huianyuan.github.io.git/img/404.jpg">
-<meta property="og:image" content="https://huianyuan.github.io.git/img/404.jpg">
+<meta property="og:image" content="https://huianyuan.github.io.git/2022/11/14/2022.11.14.054.JVM%E5%8E%9F%E7%90%86%E4%B9%8B%E7%B1%BB%E5%8A%A0%E8%BD%BD%E6%9C%BA%E5%88%B6/%E7%B1%BB%E5%8A%A0%E8%BD%BD%E5%AD%90%E7%B3%BB%E7%BB%9F/image-20221109162556-bpg3nqb.png">
+<meta property="og:image" content="https://huianyuan.github.io.git/2022/11/14/2022.11.14.054.JVM%E5%8E%9F%E7%90%86%E4%B9%8B%E7%B1%BB%E5%8A%A0%E8%BD%BD%E6%9C%BA%E5%88%B6/%E7%B1%BB%E5%8A%A0%E8%BD%BD%E5%AD%90%E7%B3%BB%E7%BB%9F/image-20221109162755-2jxztnh.png">
+<meta property="og:image" content="https://huianyuan.github.io.git/2022/11/14/2022.11.14.054.JVM%E5%8E%9F%E7%90%86%E4%B9%8B%E7%B1%BB%E5%8A%A0%E8%BD%BD%E6%9C%BA%E5%88%B6/%E7%B1%BB%E5%8A%A0%E8%BD%BD%E5%AD%90%E7%B3%BB%E7%BB%9F/image-20221109163107-hq5vhz4.png">
+<meta property="og:image" content="https://huianyuan.github.io.git/2022/11/14/2022.11.14.054.JVM%E5%8E%9F%E7%90%86%E4%B9%8B%E7%B1%BB%E5%8A%A0%E8%BD%BD%E6%9C%BA%E5%88%B6/%E7%B1%BB%E5%8A%A0%E8%BD%BD%E5%AD%90%E7%B3%BB%E7%BB%9F/image-20221109163403-o6o1h1u.png">
+<meta property="og:image" content="https://huianyuan.github.io.git/2022/11/14/2022.11.14.054.JVM%E5%8E%9F%E7%90%86%E4%B9%8B%E7%B1%BB%E5%8A%A0%E8%BD%BD%E6%9C%BA%E5%88%B6/%E7%B1%BB%E5%8A%A0%E8%BD%BD%E5%AD%90%E7%B3%BB%E7%BB%9F/image-20221109163754-a26a3mk.png">
+<meta property="og:image" content="https://huianyuan.github.io.git/2022/11/14/2022.11.14.054.JVM%E5%8E%9F%E7%90%86%E4%B9%8B%E7%B1%BB%E5%8A%A0%E8%BD%BD%E6%9C%BA%E5%88%B6/%E7%B1%BB%E5%8A%A0%E8%BD%BD%E5%AD%90%E7%B3%BB%E7%BB%9F/image-20221109172006-ql5vbam.png">
+<meta property="og:image" content="https://huianyuan.github.io.git/2022/11/14/2022.11.14.054.JVM%E5%8E%9F%E7%90%86%E4%B9%8B%E7%B1%BB%E5%8A%A0%E8%BD%BD%E6%9C%BA%E5%88%B6/%E7%B1%BB%E5%8A%A0%E8%BD%BD%E5%AD%90%E7%B3%BB%E7%BB%9F/image-20221109175919-yg7sgu6.png">
+<meta property="og:image" content="https://huianyuan.github.io.git/2022/11/14/2022.11.14.054.JVM%E5%8E%9F%E7%90%86%E4%B9%8B%E7%B1%BB%E5%8A%A0%E8%BD%BD%E6%9C%BA%E5%88%B6/%E7%B1%BB%E5%8A%A0%E8%BD%BD%E5%AD%90%E7%B3%BB%E7%BB%9F/image-20221109180257-1h2y3zr.png">
+<meta property="og:image" content="https://huianyuan.github.io.git/2022/11/14/2022.11.14.054.JVM%E5%8E%9F%E7%90%86%E4%B9%8B%E7%B1%BB%E5%8A%A0%E8%BD%BD%E6%9C%BA%E5%88%B6/%E7%B1%BB%E5%8A%A0%E8%BD%BD%E5%AD%90%E7%B3%BB%E7%BB%9F/image-20221109180308-aorka58.png">
+<meta property="og:image" content="https://huianyuan.github.io.git/2022/11/14/2022.11.14.054.JVM%E5%8E%9F%E7%90%86%E4%B9%8B%E7%B1%BB%E5%8A%A0%E8%BD%BD%E6%9C%BA%E5%88%B6/02%E7%B1%BB%E5%8A%A0%E8%BD%BD%E5%AD%90%E7%B3%BB%E7%BB%9F/image-20221109180330-4u9e9i5.png">
+<meta property="og:image" content="https://huianyuan.github.io.git/2022/11/14/2022.11.14.054.JVM%E5%8E%9F%E7%90%86%E4%B9%8B%E7%B1%BB%E5%8A%A0%E8%BD%BD%E6%9C%BA%E5%88%B6/%E7%B1%BB%E5%8A%A0%E8%BD%BD%E5%AD%90%E7%B3%BB%E7%BB%9F/image-20221109180505-yr1alka.png">
+<meta property="og:image" content="https://huianyuan.github.io.git/2022/11/14/2022.11.14.054.JVM%E5%8E%9F%E7%90%86%E4%B9%8B%E7%B1%BB%E5%8A%A0%E8%BD%BD%E6%9C%BA%E5%88%B6/%E7%B1%BB%E5%8A%A0%E8%BD%BD%E5%AD%90%E7%B3%BB%E7%BB%9F/image-20221109184514-bq8hz0a.png">
+<meta property="og:image" content="https://huianyuan.github.io.git/2022/11/14/2022.11.14.054.JVM%E5%8E%9F%E7%90%86%E4%B9%8B%E7%B1%BB%E5%8A%A0%E8%BD%BD%E6%9C%BA%E5%88%B6/%E7%B1%BB%E5%8A%A0%E8%BD%BD%E5%AD%90%E7%B3%BB%E7%BB%9F/image-20221109180832-k55wmjs.png">
 <meta property="article:published_time" content="2022-11-14T11:41:32.000Z">
-<meta property="article:modified_time" content="2023-05-24T09:26:28.568Z">
+<meta property="article:modified_time" content="2023-08-09T12:58:22.748Z">
 <meta property="article:author" content="HuianYuan">
 <meta property="article:tag" content="JVM">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:image" content="https://huianyuan.github.io.git/img/404.jpg">
+<meta name="twitter:image" content="https://huianyuan.github.io.git/2022/11/14/2022.11.14.054.JVM%E5%8E%9F%E7%90%86%E4%B9%8B%E7%B1%BB%E5%8A%A0%E8%BD%BD%E6%9C%BA%E5%88%B6/%E7%B1%BB%E5%8A%A0%E8%BD%BD%E5%AD%90%E7%B3%BB%E7%BB%9F/image-20221109162556-bpg3nqb.png">
+  
+  
+  
+  <meta name="keywords" content="JVM">
 
+  <!-- feed -->
+  
 
-<title >JVM原理-类加载</title>
-
-<!-- Favicon -->
-
-    <link href='/img/favicon.svg?v=2.0.9' rel='icon' type='image/png' sizes='16x16' ></link>
-
-
-    <link href='/img/favicon.svg?v=2.0.9' rel='icon' type='image/png' sizes='32x32' ></link>
-
-
-
-
-<!-- Plugin -->
-
-
-
-
+  
     
-<link rel="stylesheet" href="/css/plugins/bootstrap.row.css">
+<link rel="stylesheet" href="/css/main.css">
 
-    
-<link rel="stylesheet" href="https://npm.elemecdn.com/locomotive-scroll@4.1.4/dist/locomotive-scroll.min.css">
+  
 
-    
-<link rel="stylesheet" href="https://npm.elemecdn.com/@fancyapps/ui@4.0/dist/fancybox.css">
+  
 
-    
-    
+  
 
+  
 
 
-
-<!-- Icon -->
-
-    
-<link rel="stylesheet" href="/css/plugins/font-awesome.min.css">
-
-
-
-
-<!-- Variable -->
-<script>window.ASYNC_CONFIG = {"hostname":"huianyuan.github.io.git","author":"HuianYuan","root":"/","typed_text":["Backend Developer"],"theme_version":"2.0.9","theme":{"switch":true,"default":"style-light"},"favicon":{"logo":"/img/favicon.svg","icon16":"/img/favicon.svg","icon32":"/img/favicon.svg","appleTouchIcon":null,"webmanifest":null,"visibilitychange":false,"hidden":"/failure.ico","showText":"(/≧▽≦/)咦！又好了！","hideText":"(●—●)喔哟，崩溃啦！"},"i18n":{"placeholder":"搜索文章...","empty":"找不到您查询的内容: ${query}","hits":"找到 ${hits} 条结果","hits_time":"找到 ${hits} 条结果（用时 ${time} 毫秒）","author":"本文作者：","copyright_link":"本文链接：","copyright_license_title":"版权声明：","copyright_license_content":"本博客所有文章除特别声明外，均默认采用 undefined 许可协议。","copy_success":"复制成功","copy_failure":"复制失败","open_read_mode":"进入阅读模式","exit_read_mode":"退出阅读模式","notice_outdate_message":"距离上次更新已经 undefined 天了, 文章内容可能已经过时。","just":"刚刚","min":"分钟前","hour":"小时前","day":"天前","month":"个月前"},"swup":false,"plugin":{"flickr_justified_gallery":"https://npm.elemecdn.com/flickr-justified-gallery@latest/dist/fjGallery.min.js"},"icons":{"sun":"far fa-sun","moon":"far fa-moon","play":"fas fa-play","email":"far fa-envelope","next":"fas fa-arrow-right","calendar":"far fa-calendar-alt","clock":"far fa-clock","user":"far fa-user","back_top":"fas fa-arrow-up","close":"fas fa-times","search":"fas fa-search","reward":"fas fa-hand-holding-usd","user_tag":"fas fa-user-alt","toc_tag":"fas fa-th-list","read":"fas fa-book-reader","arrows":"fas fa-arrows-alt-h","double_arrows":"fas fa-angle-double-down","copy":"fas fa-copy"},"icontype":"font","highlight":{"plugin":"highlighjs","theme":true,"copy":true,"lang":true,"title":"default","height_limit":false},"covers":["https://gd-hbimg.huaban.com/6c7c6cb1280654293598481ab4caa8ef308f6abc176736-9Dqd8L_fw658webp","https://gd-hbimg.huaban.com/8bfe08162f50181c287ef3e2c9d16807e24b5bef2e7905-BV3Ogq_fw658webp","https://gd-hbimg.huaban.com/d8eb97c1daa6b2f00c5ea1b0776a191a67e3af721cb275-f2mmfJ_fw658webp","https://gd-hbimg.huaban.com/6767ac43fb8c31f797a75b11b923505b8dd2519410a78e-wfUAVs_fw658webp","https://gd-hbimg.huaban.com/b32f5fc47d0ce6221ba0cd9116b51abed1715b781fa745-3NEj55_fw658webp","https://gd-hbimg.huaban.com/763d618029395e2e286106b41a71f248021efe7b9f0d1-LGsaRo_fw658webp","https://gd-hbimg.huaban.com/ce73430112f6c28582e5a53674fc5759e59fc223c6bdc-nR9wsQ_fw658webp","https://gd-hbimg.huaban.com/66335a38350887b6e7bf788e0e23479d8f5898d9f2d6b-17oNru_fw658webp","https://gd-hbimg.huaban.com/68476e04b4dff58f269d0ebf2d7fd227cc4d6cf5ae9d6-pjqsqD_fw658webp","https://gd-hbimg.huaban.com/f9000a964db5b0ae137dd2c1148f43cabad9de0d2f598-QHzEXI_fw658webp","https://gd-hbimg.huaban.com/b4a34c4dec27761e604ec742f5dcc121b652a17b53fc-UPO5q9_fw658webp","https://gd-hbimg.huaban.com/cdccd126bfea0265ef4d8e40a154fb10dcb005519c57-nfIZOe_fw658webp","https://gd-hbimg.huaban.com/cdcbd79ebff4cf1ba89decd3eb541940ec91f1e02ef07-UZBsNu_fw658webp","https://gd-hbimg.huaban.com/bca33bb4e2a9931ea77aef3b5bc180dd728d447da1853-RzX5G4_fw658webp"]};</script>
-<script id="async-page-config">window.PAGE_CONFIG = {"isPost":true,"isHome":false,"postUpdate":"2023-05-24 17:26:28"};</script>
-
-<!-- Theme mode css -->
-<link data-swup-theme rel="stylesheet" href="/css/index.css?v=2.0.9" id="trm-switch-style">
-<script>
-    let defaultMode = ASYNC_CONFIG.theme.default !=='auto' ?  ASYNC_CONFIG.theme.default : (window.matchMedia("(prefers-color-scheme: light)").matches ? 'style-light' : 'style-dark')
-    let catchMode = localStorage.getItem('theme-mode') || defaultMode;
-    let type = catchMode === 'style-dark' ? 'add' : 'remove';
-    document.documentElement.classList[type]('dark')
-</script>
-
-<!-- CDN -->
-
-
-    
-    
-
-
-
-<!-- Site Analytics -->
- 
-<meta name="generator" content="Hexo 6.3.0"></head>
+  
+</head>
 
 <body>
+  
 
-  <!-- app wrapper -->
-  <div class="trm-app-frame">
 
-    <!-- page preloader -->
-    <div class="trm-preloader">
-    <div class="trm-holder">
-        <div class="preloader">
-            <div></div>
-            <div></div>
-            <div></div>
-            <div></div>
-            <div></div>
-            <div></div>
-            <div></div>
-            <div></div>
-            <div></div>
-            <div></div>
-        </div>
-    </div>
-</div>
-    <!-- page preloader end -->
 
-    <!-- change mode preloader -->
-    <div class="trm-mode-swich-animation-frame">
-    <div class="trm-mode-swich-animation">
-        <i class="i-sun"><i class="iconfont far fa-sun"></i></i>
-        <div class="trm-horizon"></div>
-        <i class="i-moon"><i class="iconfont far fa-moon"></i></i>
-    </div>
-</div>
-    <!-- change mode preloader end -->
 
-      <!-- scroll container -->
-      <div id="trm-dynamic-content" class="trm-swup-animation">
-        <div id="trm-scroll-container" class="trm-scroll-container" data-scroll-container style="opacity: 0">
-          <div data-scroll-section id="content" class="trm-scroll-section">
-
-            <div class="locomotive-scroll__sticky-target" style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; pointer-events: none;"></div>
-
-            <!-- top bar -->
-            <header class="trm-top-bar" data-scroll data-scroll-sticky data-scroll-target=".locomotive-scroll__sticky-target" data-scroll-offset="-10">
-	<div class="container">
-		<div class="trm-left-side">
-			<!-- logo -->
-<a href="/" class="trm-logo-frame trm-anima-link">
+  <div class='l_body' id='start'>
+    <aside class='l_left' layout='post'>
     
-        <img alt="logo" src="/img/favicon.svg">
-    
-    
-        <div class="trm-logo-text">
-            苑<span>惠安</span>
-        </div>
-    
-</a>
-<!-- logo end -->
-		</div>
-		<div class="trm-right-side">
-			<!-- menu -->
-<div class="trm-menu">
-    <nav>
-        <ul>
-            
-            <li class="menu-item-has-children ">
-                <a  href="/" target="">
-                    首页
-                </a>
-                
-            </li>
-            
-            <li class="menu-item-has-children ">
-                <a data-no-swup href="/archives/" target="">
-                    归档
-                </a>
-                
-            </li>
-            
-            <li class="menu-item-has-children ">
-                <a data-no-swup href="/categories/" target="">
-                    分类
-                </a>
-                
-            </li>
-            
-            <li class="menu-item-has-children ">
-                <a data-no-swup href="/tags/" target="">
-                    标签
-                </a>
-                
-            </li>
-            
-        </ul>
-    </nav>
-</div>
-<!-- menu end -->
-			
-    <!-- mode switcher place -->
-    <div class="trm-mode-switcher-place">
-        <div class="trm-mode-switcher">
-            <i class="iconfont far fa-sun"></i>
-            <input class="tgl tgl-light" id="trm-swich" type="checkbox">
-            <label class="trm-swich" for="trm-swich"></label>
-            <i class="iconfont far fa-moon"></i>
-        </div>
-    </div>
-    <!-- mode switcher place end -->
 
-			
-		</div>
-		<div class="trm-menu-btn">
-			<span></span>
-		</div>
-	</div>
+  
+
+<header class="header"><div class="logo-wrap"><a class="avatar" href="/about/"><div class="bg" style="opacity:0;background-image:url(https://gcore.jsdelivr.net/gh/cdn-x/placeholder@1.0.4/avatar/round/rainbow64@3x.webp);"></div><img no-lazy class="avatar" src="https://avatars.githubusercontent.com/u/34713275?v=4" onerror="javascript:this.classList.add('error');this.src='https://gcore.jsdelivr.net/gh/cdn-x/placeholder@1.0.4/image/2659360.svg';"></a><a class="title" href="/"><div class="main" ff="title">惠安苑</div><div class="sub cap">知识记录分享小站</div></a></div>
+
+<nav class="menu dis-select"></nav>
 </header>
-            <!-- top bar end -->
 
-            <!-- body -->
-            
-<div class="trm-content-start">
-    <!-- banner -->
-    <div class="trm-banner" data-scroll data-scroll-direction="vertical">
-    
-    <!-- banner cover -->
-    <img style="object-position:top;object-fit:cover;" alt="banner" class="trm-banner-cover" data-scroll data-scroll-direction="vertical" data-scroll-speed="-3" src="/img/banner.png">
-    <!-- banner cover end -->
-    
 
-    <!-- banner content -->
-    <div class="trm-banner-content trm-overlay">
-        <div class="container" data-scroll data-scroll-direction="vertical" data-scroll-speed="0">
-            <div class="row">
-                
-                <div class="col-lg-4"></div>
-                
-                <div class="col-lg-8">
+<div class="widgets">
+<widget class="widget-wrapper search"><div class="widget-body"><div class="search-wrapper" id="search"><form class="search-form"><input type="text" class="search-input" id="search-input" data-filter="/blog/" placeholder="文章搜索"><svg t="1670596976048" class="icon search-icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="2676" width="200" height="200"><path d="M938.2 832.6L723.8 618.1c-2.5-2.5-5.3-4.4-7.9-6.4 36.2-55.6 57.3-121.8 57.3-193.1C773.3 222.8 614.6 64 418.7 64S64 222.8 64 418.6c0 195.9 158.8 354.6 354.6 354.6 71.3 0 137.5-21.2 193.2-57.4 2 2.7 3.9 5.4 6.3 7.8L832.5 938c14.6 14.6 33.7 21.9 52.8 21.9 19.1 0 38.2-7.3 52.8-21.8 29.2-29.1 29.2-76.4 0.1-105.5M418.7 661.3C284.9 661.3 176 552.4 176 418.6 176 284.9 284.9 176 418.7 176c133.8 0 242.6 108.9 242.6 242.7 0 133.7-108.9 242.6-242.6 242.6" p-id="2677"></path></svg></form><div id="search-result"></div><div class="search-no-result">No Results!</div></div></div></widget>
 
-                    <!-- banner title -->
-                    <div class="trm-banner-text ">
-                        <div class="trm-label trm-mb-20">
-                            NEWS LETTER
-                        </div>
-                        <h1 class="trm-mb-30 trm-hsmb-font">
-                            JVM原理-类加载
-                        </h1>
 
-                        
-                            <ul class="trm-breadcrumbs trm-label">
-                                <li>
-                                    <a href="/" class="trm-anima-link">Home</a>
-                                </li>
-                                <li>
-                                    <span>
-                                        2022
-                                    </span
-                                ></li>
-                            </ul>
-                        
-                    </div>
-                    <!-- banner title end -->
+<widget class="widget-wrapper toc single" id="data-toc"><div class="widget-header cap dis-select"><span class="name">JVM原理-类加载</span></div><div class="widget-body fs14"><div class="doc-tree active"><ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%B1%BB%E5%8A%A0%E8%BD%BD%E5%99%A8ClassLoader%E8%A7%92%E8%89%B2"><span class="toc-text">类加载器ClassLoader角色</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%B1%BB%E5%8A%A0%E8%BD%BD%E8%BF%87%E7%A8%8B"><span class="toc-text">类加载过程</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%8A%A0%E8%BD%BD%E9%98%B6%E6%AE%B5"><span class="toc-text">加载阶段</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E9%93%BE%E6%8E%A5%E9%98%B6%E6%AE%B5"><span class="toc-text">链接阶段</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E9%AA%8C%E8%AF%81-Verify"><span class="toc-text">验证(Verify)</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%87%86%E5%A4%87-Prepare"><span class="toc-text">准备(Prepare)</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E8%A7%A3%E6%9E%90-Resolve"><span class="toc-text">解析(Resolve)</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%88%9D%E5%A7%8B%E5%8C%96%E9%98%B6%E6%AE%B5"><span class="toc-text">初始化阶段</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E7%B1%BB%E7%9A%84%E5%88%9D%E5%A7%8B%E5%8C%96%E6%97%B6%E6%9C%BA"><span class="toc-text">类的初始化时机</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#clinit"><span class="toc-text">clinit()</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%A6%82%E8%BF%B0"><span class="toc-text">概述</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E8%99%9A%E6%8B%9F%E6%9C%BA%E8%87%AA%E5%B8%A6%E7%9A%84%E5%8A%A0%E8%BD%BD%E5%99%A8"><span class="toc-text">虚拟机自带的加载器</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%90%AF%E5%8A%A8%E7%B1%BB%E5%8A%A0%E8%BD%BD%E5%99%A8"><span class="toc-text">启动类加载器</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%89%A9%E5%B1%95%E7%B1%BB%E5%8A%A0%E8%BD%BD%E5%99%A8"><span class="toc-text">扩展类加载器</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%B3%BB%E7%BB%9F%E7%B1%BB%E5%8A%A0%E8%BD%BD%E5%99%A8"><span class="toc-text">系统类加载器</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%94%A8%E6%88%B7%E8%87%AA%E5%AE%9A%E4%B9%89%E7%B1%BB%E5%8A%A0%E8%BD%BD%E5%99%A8"><span class="toc-text">用户自定义类加载器</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BB%80%E4%B9%88%E6%97%B6%E5%80%99%E9%9C%80%E8%A6%81%E8%87%AA%E5%AE%9A%E4%B9%89%E7%B1%BB%E5%8A%A0%E8%BD%BD%E5%99%A8%EF%BC%9F"><span class="toc-text">什么时候需要自定义类加载器？</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%A6%82%E4%BD%95%E8%87%AA%E5%AE%9A%E4%B9%89%E7%B1%BB%E5%8A%A0%E8%BD%BD%E5%99%A8%EF%BC%9F"><span class="toc-text">如何自定义类加载器？</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E8%8E%B7%E5%8F%96ClassLoader%E9%80%94%E5%BE%84"><span class="toc-text">获取ClassLoader途径</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%8F%8C%E4%BA%B2%E5%A7%94%E6%B4%BE%E6%9C%BA%E5%88%B6%E5%8E%9F%E7%90%86"><span class="toc-text">双亲委派机制原理</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%8F%8C%E4%BA%B2%E5%A7%94%E6%B4%BE%E6%9C%BA%E5%88%B6%E4%BB%A3%E7%A0%81%E6%BC%94%E7%A4%BA"><span class="toc-text">双亲委派机制代码演示</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%B8%BE%E4%BE%8B2"><span class="toc-text">举例2</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%B8%BE%E4%BE%8B3"><span class="toc-text">举例3</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%8F%8C%E4%BA%B2%E5%A7%94%E6%B4%BE%E6%9C%BA%E5%88%B6%E4%BC%98%E5%8A%BF"><span class="toc-text">双亲委派机制优势</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%B2%99%E7%AE%B1%E5%AE%89%E5%85%A8%E6%9C%BA%E5%88%B6"><span class="toc-text">沙箱安全机制</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%A6%82%E4%BD%95%E5%88%A4%E6%96%AD%E4%B8%A4%E4%B8%AAclass%E5%AF%B9%E8%B1%A1%E6%98%AF%E5%90%A6%E7%9B%B8%E5%90%8C%EF%BC%9F"><span class="toc-text">如何判断两个class对象是否相同？</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%AF%B9%E7%B1%BB%E5%8A%A0%E8%BD%BD%E5%99%A8%E7%9A%84%E5%BC%95%E7%94%A8"><span class="toc-text">对类加载器的引用</span></a></li></ol></div></div></widget>
 
-                    <!-- scroll hint -->
-                    <a href="#about-triger" data-scroll-to="#about-triger" data-scroll-offset="-130" class="trm-scroll-hint-frame">
-                        <div class="trm-scroll-hint"></div>
-                        <span class="trm-label">Scroll down</span>
-                    </a>
-                    <!-- scroll hint end -->
 
-                </div>
-            </div>
-        </div>
-    </div>
-    <!-- banner content end -->
-</div>
-    <!-- banner end -->
-    <div class="container">
-        <div class="row">
-            
-                <div id="page-sidebar" class="col-lg-4 hidden-sm">
-                    <!-- main card -->
-                    
 
-<div class="trm-main-card-frame trm-sidebar">
-    <div class="trm-main-card" data-scroll data-scroll-repeat data-scroll-sticky data-scroll-target=".locomotive-scroll__sticky-target" data-scroll-offset="60"> 
-    
-        <div class="trm-user-tabs" id="sidebar-tabs">
-           <div class="trm-tabs-nav trm-mb-40" id="trm-tabs-nav">
-                <div data-to="tabs-user" class="trm-tabs-nav-item">
-                    <i class="iconfont fas fa-user-alt"></i>
-                </div>
-                <div data-to="tabs-toc" class="trm-tabs-nav-item active">
-                    <i class="iconfont fas fa-th-list"></i>
-                </div>
-           </div>
-            <div name="tabs-user" class="trm-tabs-item">
-                <!-- card header -->
-<div class="trm-mc-header">
-    <div class="trm-avatar-frame trm-mb-20">
-        <img alt="Avatar" class="trm-avatar" src="https://avatars.githubusercontent.com/u/34713275?s=400&u=e57687047911b1e9855c2dc012430c447af72773&v=4">
-    </div>
-    <h5 class="trm-name trm-mb-15">
-        HuianYuan
-    </h5>
-    
-        <div class="trm-label">
-            I`m
-            <span class="trm-typed-text">
-                <!-- Words for theme.user.typedText -->
-            </span>
-        </div>
-    
-</div>
-<!-- card header end -->
-                <!-- sidebar social -->
 
-<div class="trm-divider trm-mb-40 trm-mt-40"></div>
-<div class="trm-social">
-    
-        <a href="https://github.com/Huianyuan" title="github" rel="nofollow" target="_blank">
-            <i class="iconfont fab fa-github"></i>
-        </a>
-    
 </div>
 
-<!-- sidebar social end -->
-                <!-- info -->
-<div class="trm-divider trm-mb-40 trm-mt-40"></div>
-<ul class="trm-table trm-mb-20">
-    
-        <li>
-            <div class="trm-label">
-                地址:
-            </div>
-            <div class="trm-label trm-label-light">
-                上海
-            </div>
-        </li>
-    
-</ul>
-<!-- info end -->
 
-                
-    <div class="trm-divider trm-mb-40 trm-mt-40"></div>
-    <!-- action button -->
-    <div class="text-center">
-        <a href="mailto:452970841@qq.com" class="trm-btn">
-            联系我
-            <i class="iconfont far fa-envelope"></i>
-        </a>
-    </div>
-    <!-- action button end -->
+    </aside>
+    <div class='l_main'>
+      
 
-            </div>
-            <div name="tabs-toc" class="trm-tabs-item active">
-                <div class="post-toc">
-    <ol class="toc"><li class="toc-item toc-level-2"><a rel="nofollow" class="toc-link" href="#类加载器ClassLoader角色"  data-scroll-to="#类加载器ClassLoader角色"><span class="toc-number">1.</span> <span class="toc-text">类加载器ClassLoader角色</span></a></li><li class="toc-item toc-level-2"><a rel="nofollow" class="toc-link" href="#类加载过程"  data-scroll-to="#类加载过程"><span class="toc-number">2.</span> <span class="toc-text">类加载过程</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a rel="nofollow" class="toc-link" href="#加载阶段"  data-scroll-to="#加载阶段"><span class="toc-number">2.1.</span> <span class="toc-text">加载阶段</span></a></li><li class="toc-item toc-level-3"><a rel="nofollow" class="toc-link" href="#链接阶段"  data-scroll-to="#链接阶段"><span class="toc-number">2.2.</span> <span class="toc-text">链接阶段</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a rel="nofollow" class="toc-link" href="#验证-Verify"  data-scroll-to="#验证-Verify"><span class="toc-number">2.2.1.</span> <span class="toc-text">验证(Verify)</span></a></li><li class="toc-item toc-level-4"><a rel="nofollow" class="toc-link" href="#准备-Prepare"  data-scroll-to="#准备-Prepare"><span class="toc-number">2.2.2.</span> <span class="toc-text">准备(Prepare)</span></a></li><li class="toc-item toc-level-4"><a rel="nofollow" class="toc-link" href="#解析-Resolve"  data-scroll-to="#解析-Resolve"><span class="toc-number">2.2.3.</span> <span class="toc-text">解析(Resolve)</span></a></li></ol></li><li class="toc-item toc-level-3"><a rel="nofollow" class="toc-link" href="#初始化阶段"  data-scroll-to="#初始化阶段"><span class="toc-number">2.3.</span> <span class="toc-text">初始化阶段</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a rel="nofollow" class="toc-link" href="#类的初始化时机"  data-scroll-to="#类的初始化时机"><span class="toc-number">2.3.1.</span> <span class="toc-text">类的初始化时机</span></a></li><li class="toc-item toc-level-4"><a rel="nofollow" class="toc-link" href="#clinit"  data-scroll-to="#clinit"><span class="toc-number">2.3.2.</span> <span class="toc-text">clinit()</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a rel="nofollow" class="toc-link" href="#概述"  data-scroll-to="#概述"><span class="toc-number">3.</span> <span class="toc-text">概述</span></a></li><li class="toc-item toc-level-2"><a rel="nofollow" class="toc-link" href="#虚拟机自带的加载器"  data-scroll-to="#虚拟机自带的加载器"><span class="toc-number">4.</span> <span class="toc-text">虚拟机自带的加载器</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a rel="nofollow" class="toc-link" href="#启动类加载器"  data-scroll-to="#启动类加载器"><span class="toc-number">4.1.</span> <span class="toc-text">启动类加载器</span></a></li><li class="toc-item toc-level-3"><a rel="nofollow" class="toc-link" href="#扩展类加载器"  data-scroll-to="#扩展类加载器"><span class="toc-number">4.2.</span> <span class="toc-text">扩展类加载器</span></a></li><li class="toc-item toc-level-3"><a rel="nofollow" class="toc-link" href="#系统类加载器"  data-scroll-to="#系统类加载器"><span class="toc-number">4.3.</span> <span class="toc-text">系统类加载器</span></a></li></ol></li><li class="toc-item toc-level-2"><a rel="nofollow" class="toc-link" href="#用户自定义类加载器"  data-scroll-to="#用户自定义类加载器"><span class="toc-number">5.</span> <span class="toc-text">用户自定义类加载器</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a rel="nofollow" class="toc-link" href="#什么时候需要自定义类加载器？"  data-scroll-to="#什么时候需要自定义类加载器？"><span class="toc-number">5.1.</span> <span class="toc-text">什么时候需要自定义类加载器？</span></a></li><li class="toc-item toc-level-3"><a rel="nofollow" class="toc-link" href="#如何自定义类加载器？"  data-scroll-to="#如何自定义类加载器？"><span class="toc-number">5.2.</span> <span class="toc-text">如何自定义类加载器？</span></a></li></ol></li><li class="toc-item toc-level-2"><a rel="nofollow" class="toc-link" href="#获取ClassLoader途径"  data-scroll-to="#获取ClassLoader途径"><span class="toc-number">6.</span> <span class="toc-text">获取ClassLoader途径</span></a></li><li class="toc-item toc-level-2"><a rel="nofollow" class="toc-link" href="#双亲委派机制原理"  data-scroll-to="#双亲委派机制原理"><span class="toc-number">7.</span> <span class="toc-text">双亲委派机制原理</span></a></li><li class="toc-item toc-level-2"><a rel="nofollow" class="toc-link" href="#双亲委派机制代码演示"  data-scroll-to="#双亲委派机制代码演示"><span class="toc-number">8.</span> <span class="toc-text">双亲委派机制代码演示</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a rel="nofollow" class="toc-link" href="#举例2"  data-scroll-to="#举例2"><span class="toc-number">8.1.</span> <span class="toc-text">举例2</span></a></li><li class="toc-item toc-level-3"><a rel="nofollow" class="toc-link" href="#举例3"  data-scroll-to="#举例3"><span class="toc-number">8.2.</span> <span class="toc-text">举例3</span></a></li></ol></li><li class="toc-item toc-level-2"><a rel="nofollow" class="toc-link" href="#双亲委派机制优势"  data-scroll-to="#双亲委派机制优势"><span class="toc-number">9.</span> <span class="toc-text">双亲委派机制优势</span></a></li><li class="toc-item toc-level-2"><a rel="nofollow" class="toc-link" href="#沙箱安全机制"  data-scroll-to="#沙箱安全机制"><span class="toc-number">10.</span> <span class="toc-text">沙箱安全机制</span></a></li><li class="toc-item toc-level-2"><a rel="nofollow" class="toc-link" href="#如何判断两个class对象是否相同？"  data-scroll-to="#如何判断两个class对象是否相同？"><span class="toc-number">11.</span> <span class="toc-text">如何判断两个class对象是否相同？</span></a></li><li class="toc-item toc-level-2"><a rel="nofollow" class="toc-link" href="#对类加载器的引用"  data-scroll-to="#对类加载器的引用"><span class="toc-number">12.</span> <span class="toc-text">对类加载器的引用</span></a></li></ol>
-</div>
-            </div>
-        </div>
-    
-    </div>
-</div>
-                    <!-- main card end -->
-                </div>
-            
-            <div id="page-content" class="col-lg-8">
-                <div class="trm-content" id="trm-content">
-                    <div data-scroll data-scroll-repeat data-scroll-offset="500" id="about-triger"></div>
+      
 
-                    <div id="post-info" class="row hidden-sm">
-    <div class="col-sm-4">
-        <div class="trm-card trm-label trm-label-light text-center">
-            <i class="iconfont far fa-calendar-alt trm-icon"></i><br>
-            11/14
-        </div>
-    </div>
-    <div class="col-sm-4">
-        <div class="trm-card trm-label trm-label-light text-center">
-            <i class="iconfont far fa-clock trm-icon"></i><br>
-            19:41
-        </div>
-    </div>
-    <div class="col-sm-4">
-        <div id="post-author" class="trm-card trm-label trm-label-light text-center">
-            <i class="iconfont far fa-user trm-icon"></i><br>
-            HuianYuan
-        </div>
-    </div>
-</div>
-<div class="trm-card ">
-    <article id="article-container" class="trm-publication">
-    <h1 id="类加载子系统"><a href="#类加载子系统" class="headerlink" title="类加载子系统"></a>类加载子系统</h1><h1 id="内存结构概述"><a href="#内存结构概述" class="headerlink" title="内存结构概述"></a>内存结构概述</h1><p><img src="/%E7%B1%BB%E5%8A%A0%E8%BD%BD%E5%AD%90%E7%B3%BB%E7%BB%9F/image-20221109162556-bpg3nqb.png" alt="image" loading="lazy" onerror='this.onerror=null;this.src="/img/404.jpg"'></p>
-<p><img src="/%E7%B1%BB%E5%8A%A0%E8%BD%BD%E5%AD%90%E7%B3%BB%E7%BB%9F/image-20221109162755-2jxztnh.png" alt="image" loading="lazy" onerror='this.onerror=null;this.src="/img/404.jpg"'>​</p>
+
+
+<div class="bread-nav fs12"><div id="breadcrumb"><a class="cap breadcrumb" href="/">Home</a><span class="sep"></span><a class="cap breadcrumb" href="/">Blog</a><span class="sep"></span><a class="cap breadcrumb-link" href="/categories/Java/">Java</a></div><div id="post-meta">Posted on&nbsp;<time datetime="2022-11-14T11:41:32.000Z">2022-11-14</time></div></div>
+
+<article class='md-text content post'>
+<h1 class="article-title"><span>JVM原理-类加载</span></h1>
+<h1 id="类加载子系统"><a href="#类加载子系统" class="headerlink" title="类加载子系统"></a>类加载子系统</h1><h1 id="内存结构概述"><a href="#内存结构概述" class="headerlink" title="内存结构概述"></a>内存结构概述</h1><div class="tag-plugin image"><div class="image-bg"><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="类加载子系统/image-20221109162556-bpg3nqb.png" alt="image"/></div><div class="image-meta"><span class="image-caption center">image</span></div></div>
+
+
+
+<div class="tag-plugin image"><div class="image-bg"><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="类加载子系统/image-20221109162755-2jxztnh.png" alt="image"/></div><div class="image-meta"><span class="image-caption center">image</span></div></div>​
+
 <p>‍</p>
 <p>‍</p>
 <h1 id="类加载器与类的加载过程"><a href="#类加载器与类的加载过程" class="headerlink" title="类加载器与类的加载过程"></a>类加载器与类的加载过程</h1><p><strong>类加载器子系统作用：</strong></p>
@@ -401,14 +129,17 @@
 <li>ClassLoader只负责class文件的加载，至于它是否可以运行，则由Execution Engine决定。</li>
 <li><strong>加载的类信息存放于一块称为方法区的内存空间</strong>​。除了类的信息外，方法区中还会存放运行时常量池信息，可能还包括字符串字面量和数字常量（这部分常量信息是Class文件中常量池部分的内存映射）</li>
 </ol>
-<p><img src="/%E7%B1%BB%E5%8A%A0%E8%BD%BD%E5%AD%90%E7%B3%BB%E7%BB%9F/image-20221109163107-hq5vhz4.png" alt="image" loading="lazy" onerror='this.onerror=null;this.src="/img/404.jpg"'>​</p>
+<div class="tag-plugin image"><div class="image-bg"><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="类加载子系统/image-20221109163107-hq5vhz4.png" alt="image"/></div><div class="image-meta"><span class="image-caption center">image</span></div></div>​
+
 <h2 id="类加载器ClassLoader角色"><a href="#类加载器ClassLoader角色" class="headerlink" title="类加载器ClassLoader角色"></a>类加载器ClassLoader角色</h2><ol>
 <li>class file（在下图中就是Car.class文件）存在于本地硬盘上，可以理解为设计师画在纸上的模板，而最终这个模板在执行的时候是要加载到JVM当中来根据这个文件实例化出n个一模一样的实例。</li>
 <li>class file加载到JVM中，被称为DNA元数据模板（在下图中就是内存中的Car Class），放在方法区。</li>
 <li>在.class文件–&gt;JVM–&gt;最终成为元数据模板，此过程就要一个运输工具（类装载器Class Loader），扮演一个快递员的角色。</li>
 </ol>
-<p><img src="/%E7%B1%BB%E5%8A%A0%E8%BD%BD%E5%AD%90%E7%B3%BB%E7%BB%9F/image-20221109163403-o6o1h1u.png" alt="image" loading="lazy" onerror='this.onerror=null;this.src="/img/404.jpg"'></p>
-<h2 id="类加载过程"><a href="#类加载过程" class="headerlink" title="类加载过程"></a>类加载过程</h2><p><img src="/%E7%B1%BB%E5%8A%A0%E8%BD%BD%E5%AD%90%E7%B3%BB%E7%BB%9F/image-20221109163754-a26a3mk.png" alt="image" loading="lazy" onerror='this.onerror=null;this.src="/img/404.jpg"'>​</p>
+<div class="tag-plugin image"><div class="image-bg"><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="类加载子系统/image-20221109163403-o6o1h1u.png" alt="image"/></div><div class="image-meta"><span class="image-caption center">image</span></div></div>
+
+<h2 id="类加载过程"><a href="#类加载过程" class="headerlink" title="类加载过程"></a>类加载过程</h2><div class="tag-plugin image"><div class="image-bg"><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="类加载子系统/image-20221109163754-a26a3mk.png" alt="image"/></div><div class="image-meta"><span class="image-caption center">image</span></div></div>​
+
 <h3 id="加载阶段"><a href="#加载阶段" class="headerlink" title="加载阶段"></a>加载阶段</h3><p><strong>加载：</strong></p>
 <ol>
 <li>通过一个类的全限定名获取定义此类的二进制字节流</li>
@@ -426,7 +157,8 @@
 <li>从加密文件中获取，典型的防Class文件被反编译的保护措施</li>
 </ol>
 <h3 id="链接阶段"><a href="#链接阶段" class="headerlink" title="链接阶段"></a>链接阶段</h3><p>链接分为三个子阶段：验证 -&gt; 准备 -&gt; 解析</p>
-<p><img src="/%E7%B1%BB%E5%8A%A0%E8%BD%BD%E5%AD%90%E7%B3%BB%E7%BB%9F/image-20221109172006-ql5vbam.png" alt="image" loading="lazy" onerror='this.onerror=null;this.src="/img/404.jpg"'>​</p>
+<div class="tag-plugin image"><div class="image-bg"><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="类加载子系统/image-20221109172006-ql5vbam.png" alt="image"/></div><div class="image-meta"><span class="image-caption center">image</span></div></div>​
+
 <h4 id="验证-Verify"><a href="#验证-Verify" class="headerlink" title="验证(Verify)"></a>验证(Verify)</h4><ol>
 <li>目的在于确保Class文件的字节流中包含信息符合当前虚拟机要求，保证被加载类的正确性，不会危害虚拟机自身安全</li>
 <li>主要包括四种验证，文件格式验证，元数据验证，字节码验证，符号引用验证。</li>
@@ -468,7 +200,8 @@
 <li>从概念上来讲，自定义类加载器一般指的是程序中由开发人员自定义的一类类加载器，但是Java虚拟机规范却没有这么定义，而是<strong>将所有派生于抽象类ClassLoader的类加载器都划分为自定义类加载器</strong></li>
 <li>无论类加载器的类型如何划分，在程序中我们最常见的类加载器始终只有3个，如下所示</li>
 </ol>
-<p><img src="/%E7%B1%BB%E5%8A%A0%E8%BD%BD%E5%AD%90%E7%B3%BB%E7%BB%9F/image-20221109175919-yg7sgu6.png" alt="image" loading="lazy" onerror='this.onerror=null;this.src="/img/404.jpg"'>​</p>
+<div class="tag-plugin image"><div class="image-bg"><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="类加载子系统/image-20221109175919-yg7sgu6.png" alt="image"/></div><div class="image-meta"><span class="image-caption center">image</span></div></div>​
+
 <h2 id="虚拟机自带的加载器"><a href="#虚拟机自带的加载器" class="headerlink" title="虚拟机自带的加载器"></a>虚拟机自带的加载器</h2><h3 id="启动类加载器"><a href="#启动类加载器" class="headerlink" title="启动类加载器"></a>启动类加载器</h3><blockquote>
 <p><strong>启动类加载器（引导类加载器，Bootstrap ClassLoader）</strong></p>
 </blockquote>
@@ -517,10 +250,13 @@
 <p><strong>ClassLoader 类介绍</strong></p>
 </blockquote>
 <p> ClassLoader类，它是一个抽象类，其后所有的类加载器都继承自ClassLoader（不包括启动类加载器）</p>
-<p><img src="/%E7%B1%BB%E5%8A%A0%E8%BD%BD%E5%AD%90%E7%B3%BB%E7%BB%9F/image-20221109180257-1h2y3zr.png" alt="image" loading="lazy" onerror='this.onerror=null;this.src="/img/404.jpg"'>​</p>
+<div class="tag-plugin image"><div class="image-bg"><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="类加载子系统/image-20221109180257-1h2y3zr.png" alt="image"/></div><div class="image-meta"><span class="image-caption center">image</span></div></div>​
+
 <p>sun.misc.Launcher 它是一个java虚拟机的入口应用</p>
-<p><img src="/%E7%B1%BB%E5%8A%A0%E8%BD%BD%E5%AD%90%E7%B3%BB%E7%BB%9F/image-20221109180308-aorka58.png" alt="image" loading="lazy" onerror='this.onerror=null;this.src="/img/404.jpg"'>​</p>
-<h2 id="获取ClassLoader途径"><a href="#获取ClassLoader途径" class="headerlink" title="获取ClassLoader途径"></a>获取ClassLoader途径</h2><p><img src="/02%E7%B1%BB%E5%8A%A0%E8%BD%BD%E5%AD%90%E7%B3%BB%E7%BB%9F/image-20221109180330-4u9e9i5.png" alt="image" loading="lazy" onerror='this.onerror=null;this.src="/img/404.jpg"'>​</p>
+<div class="tag-plugin image"><div class="image-bg"><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="类加载子系统/image-20221109180308-aorka58.png" alt="image"/></div><div class="image-meta"><span class="image-caption center">image</span></div></div>​
+
+<h2 id="获取ClassLoader途径"><a href="#获取ClassLoader途径" class="headerlink" title="获取ClassLoader途径"></a>获取ClassLoader途径</h2><div class="tag-plugin image"><div class="image-bg"><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="02类加载子系统/image-20221109180330-4u9e9i5.png" alt="image"/></div><div class="image-meta"><span class="image-caption center">image</span></div></div>​
+
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">ClassLoaderTest2</span> &#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> &#123;</span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            <span class="comment">//1.</span></span><br><span class="line">            <span class="type">ClassLoader</span> <span class="variable">classLoader</span> <span class="operator">=</span> Class.forName(<span class="string">&quot;java.lang.String&quot;</span>).getClassLoader();</span><br><span class="line">            System.out.println(classLoader);</span><br><span class="line">            <span class="comment">//2.</span></span><br><span class="line">            <span class="type">ClassLoader</span> <span class="variable">classLoader1</span> <span class="operator">=</span> Thread.currentThread().getContextClassLoader();</span><br><span class="line">            System.out.println(classLoader1);</span><br><span class="line"></span><br><span class="line">            <span class="comment">//3.</span></span><br><span class="line">            <span class="type">ClassLoader</span> <span class="variable">classLoader2</span> <span class="operator">=</span> ClassLoader.getSystemClassLoader().getParent();</span><br><span class="line">            System.out.println(classLoader2);</span><br><span class="line"></span><br><span class="line">        &#125; <span class="keyword">catch</span> (ClassNotFoundException e) &#123;</span><br><span class="line">            e.printStackTrace();</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">//######################输出结果#######################</span></span><br><span class="line"><span class="comment">//null</span></span><br><span class="line"><span class="comment">//sun.misc.Launcher$AppClassLoader@18b4aac2</span></span><br><span class="line"><span class="comment">//sun.misc.Launcher$ExtClassLoader@1540e19d</span></span><br></pre></td></tr></table></figure>
 
 <h1 id="双亲委派机制"><a href="#双亲委派机制" class="headerlink" title="双亲委派机制"></a>双亲委派机制</h1><h2 id="双亲委派机制原理"><a href="#双亲委派机制原理" class="headerlink" title="双亲委派机制原理"></a>双亲委派机制原理</h2><p>Java虚拟机对class文件采用的是<strong>按需加载</strong>的方式，也就是说当需要使用该类时才会将它的class文件加载到内存生成class对象。而且加载某个类的class文件时，Java虚拟机采用的是双亲委派模式，即把请求交由父类处理，它是一种任务委派模式</p>
@@ -530,7 +266,8 @@
 <li>如果父类加载器可以完成类加载任务，就成功返回，倘若父类加载器无法完成此加载任务，子加载器才会尝试自己去加载，这就是双亲委派模式。</li>
 <li>父类加载器一层一层往下分配任务，如果子类加载器能加载，则加载此类，如果将加载任务分配至系统类加载器也无法加载此类，则抛出异常</li>
 </ol>
-<p><img src="/%E7%B1%BB%E5%8A%A0%E8%BD%BD%E5%AD%90%E7%B3%BB%E7%BB%9F/image-20221109180505-yr1alka.png" alt="image" loading="lazy" onerror='this.onerror=null;this.src="/img/404.jpg"'>​</p>
+<div class="tag-plugin image"><div class="image-bg"><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="类加载子系统/image-20221109180505-yr1alka.png" alt="image"/></div><div class="image-meta"><span class="image-caption center">image</span></div></div>​
+
 <h2 id="双亲委派机制代码演示"><a href="#双亲委派机制代码演示" class="headerlink" title="双亲委派机制代码演示"></a>双亲委派机制代码演示</h2><p>举例1</p>
 <p>1、我们自己建立一个 java.lang.String 类，写上 static 代码块</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">String</span> &#123;</span><br><span class="line">    <span class="comment">//</span></span><br><span class="line">    <span class="keyword">static</span>&#123;</span><br><span class="line">        System.out.println(<span class="string">&quot;我是自定义的String类的静态代码块&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
@@ -545,7 +282,8 @@
 <p> 把刚刚的类改一下</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> java.lang;</span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">String</span> &#123;</span><br><span class="line">    <span class="keyword">static</span>&#123;</span><br><span class="line">        System.out.println(<span class="string">&quot;我是自定义的String类的静态代码块&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">//错误: 在类 java.lang.String 中找不到 main 方法</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> &#123;</span><br><span class="line">        System.out.println(<span class="string">&quot;hello,String&quot;</span>);</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
 
-<p><img src="/%E7%B1%BB%E5%8A%A0%E8%BD%BD%E5%AD%90%E7%B3%BB%E7%BB%9F/image-20221109184514-bq8hz0a.png" alt="image" loading="lazy" onerror='this.onerror=null;this.src="/img/404.jpg"'>​</p>
+<div class="tag-plugin image"><div class="image-bg"><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="类加载子系统/image-20221109184514-bq8hz0a.png" alt="image"/></div><div class="image-meta"><span class="image-caption center">image</span></div></div>​
+
 <p>由于双亲委派机制一直找父类，所以最后找到了Bootstrap ClassLoader，Bootstrap ClassLoader找到的是 JDK 自带的 String 类，在那个String类中并没有 main() 方法，所以就报了上面的错误。</p>
 <h3 id="举例2"><a href="#举例2" class="headerlink" title="举例2"></a>举例2</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> java.lang;</span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">ShkStart</span> &#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> &#123;</span><br><span class="line">        System.out.println(<span class="string">&quot;hello!&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
@@ -561,7 +299,8 @@
 <li>第三方的jar包中的类属于系统类加载器来加载</li>
 <li>从这里面就可以看到SPI核心接口由引导类加载器来加载，SPI具体实现类由系统类加载器来加载</li>
 </ol>
-<p><img src="/%E7%B1%BB%E5%8A%A0%E8%BD%BD%E5%AD%90%E7%B3%BB%E7%BB%9F/image-20221109180832-k55wmjs.png" alt="image" loading="lazy" onerror='this.onerror=null;this.src="/img/404.jpg"'>​</p>
+<div class="tag-plugin image"><div class="image-bg"><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="类加载子系统/image-20221109180832-k55wmjs.png" alt="image"/></div><div class="image-meta"><span class="image-caption center">image</span></div></div>​
+
 <h2 id="双亲委派机制优势"><a href="#双亲委派机制优势" class="headerlink" title="双亲委派机制优势"></a>双亲委派机制优势</h2><p>通过上面的例子，我们可以知道，双亲机制可以</p>
 <ol>
 <li><p>避免类的重复加载</p>
@@ -590,202 +329,199 @@
 </ol>
 <p>‍</p>
 
+
+
+<div class="article-footer reveal fs14"><section id="license"><div class="header"><span>License</span></div><div class="body"><p>本文采用 <a target="_blank" rel="noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/">署名-非商业性使用-相同方式共享 4.0 国际</a> 许可协议，转载请注明出处。</p>
+</div></section></div>
+
 </article>
-    
-    
 
-</div>
-<div id="post-next-prev" class="row">
-    <div class="col-lg-12">
-        <!-- title -->
-        <h5 class="trm-title-with-divider">
-            其他文章
-            <span data-number="02"></span>
-        </h5>
-    </div>
-    
-        <div class="col-lg-6">
-    <div class="trm-blog-card trm-scroll-animation" data-scroll data-scroll-offset="40">
-        <a href="/2022/12/06/2022.12.06.055.windows%E5%AE%89%E8%A3%85%E5%A4%9Apython%E7%8E%AF%E5%A2%83%E9%85%8D%E7%BD%AE/" class="trm-cover-frame trm-anima-link">
-            
-            
-                <div class="trm-cover-img" data-random-img></div>
-            
-        </a>
-        
-        <div class="trm-card-descr">
-            <div class="trm-label trm-category trm-mb-20">
-                <a href=" /categories/config/">
-                    config
-                </a>
-            </div>
-            <h5>
-                <a href="/2022/12/06/2022.12.06.055.windows%E5%AE%89%E8%A3%85%E5%A4%9Apython%E7%8E%AF%E5%A2%83%E9%85%8D%E7%BD%AE/" class="trm-anima-link">
-                    windows安装多python环境配置
-                </a>
-            </h5>
-            <div class="trm-divider trm-mb-20 trm-mt-20"></div>
-            <ul class="trm-card-data trm-label">
-                <li>22/12/06</li>
-                <li>18:27</li>
-                
-                
-            </ul>
-        </div>
-    </div>
-</div>
-    
-    
-        <div class="col-lg-6">
-    <div class="trm-blog-card trm-scroll-animation" data-scroll data-scroll-offset="40">
-        <a href="/2022/11/12/2022.11.12.053.(Algo)%E4%B8%8D%E5%90%8C%E8%B7%AF%E5%BE%84%20II/" class="trm-cover-frame trm-anima-link">
-            
-            
-                <div class="trm-cover-img" data-random-img></div>
-            
-        </a>
-        
-        <div class="trm-card-descr">
-            <div class="trm-label trm-category trm-mb-20">
-                <a href=" /categories/LeetCode/">
-                    LeetCode
-                </a>
-            </div>
-            <h5>
-                <a href="/2022/11/12/2022.11.12.053.(Algo)%E4%B8%8D%E5%90%8C%E8%B7%AF%E5%BE%84%20II/" class="trm-anima-link">
-                    37.不同路径 II
-                </a>
-            </h5>
-            <div class="trm-divider trm-mb-20 trm-mt-20"></div>
-            <ul class="trm-card-data trm-label">
-                <li>22/11/12</li>
-                <li>22:14</li>
-                
-                
-            </ul>
-        </div>
-    </div>
-</div>
-    
-</div>
+<div class="related-wrap reveal" id="read-next"><section class="body"><div class="item" id="prev"><div class="note">Newer</div><a href="/2022/12/06/2022.12.06.055.windows%E5%AE%89%E8%A3%85%E5%A4%9Apython%E7%8E%AF%E5%A2%83%E9%85%8D%E7%BD%AE/">windows安装多python环境配置</a></div><div class="item" id="next"><div class="note">Older</div><a href="/2022/11/12/2022.11.12.053.(Algo)%E4%B8%8D%E5%90%8C%E8%B7%AF%E5%BE%84%20II/">37.不同路径 II</a></div></section></div>
 
-    
+
+<div class="related-wrap reveal" id="related-posts"></div>
 
 
 
-                    <div class="trm-divider footer-divider"></div>
 
-                    <!-- footer -->
-                    <footer class="trm-scroll-animation" data-scroll data-scroll-offset="50">
 
-    
-
-    
-
-    
-        <div class="trm-footer-item">
-            <span>
-                由 <a href="https://hexo.io" target="_blank" rel="noopener">Hexo</a> 驱动 v6.3.0
-            </span>
-            <span class="footer-separator" data-separator=" | "></span>
-            <span> 
-                主题 - 
-                <a rel="noopener" href='https://github.com/MaLuns/hexo-theme-async' target='_blank'>Async</a>
-                v2.0.9
-            </span>
-        </div>
       
+<footer class="page-footer reveal fs12"><hr><div class="text"><p>本站由 <a href="/">@anonymity</a> 使用 <a target="_blank" rel="noopener" href="https://github.com/xaoxuu/hexo-theme-stellar">Stellar</a> 主题创建。<br>本博客所有文章除特别声明外，均采用 <a target="_blank" rel="noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a> 许可协议，转载请注明出处。</p>
+</div></footer>
 
-     
-
-     
-</footer>
- 
-                    <!-- footer end -->
-
-                </div>
-            </div>
-        </div>
-    </div>
+      <div class='float-panel mobile-only blur' style='display:none'>
+  <button type='button' class='sidebar-toggle mobile' onclick='sidebar.toggle()'>
+    <svg class="icon" style="width: 1em; height: 1em;vertical-align: middle;fill: currentColor;overflow: hidden;" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="15301"><path d="M566.407 808.3c26.9-0.1 49.3-20.8 51.6-47.6-1.9-27.7-23.9-49.7-51.6-51.6h-412.6c-28.2-1.4-52.6 19.5-55.5 47.6 2.3 26.8 24.6 47.5 51.6 47.6h416.5v4z m309.3-249.9c26.9-0.1 49.3-20.8 51.6-47.6-2.2-26.8-24.6-47.5-51.6-47.6h-721.9c-27.7-2.8-52.5 17.4-55.3 45.1-0.1 0.8-0.1 1.7-0.2 2.5 0.9 27.2 23.6 48.5 50.7 47.6H875.707z m-103.1-245.9c26.9-0.1 49.3-20.8 51.6-47.6-0.4-28.3-23.2-51.1-51.5-51.6h-618.9c-29.5-1.1-54.3 21.9-55.5 51.4v0.2c1.4 27.8 25.2 49.2 53 47.8 0.8 0 1.7-0.1 2.5-0.2h618.8z" p-id="15302"></path><path d="M566.407 808.3c26.9-0.1 49.3-20.8 51.6-47.6-1.9-27.7-23.9-49.7-51.6-51.6h-412.6c-28.2-1.4-52.6 19.5-55.5 47.6 1.9 27.7 23.9 49.7 51.6 51.6h416.5z m309.3-249.9c26.9-0.1 49.3-20.8 51.6-47.6-2.2-26.8-24.6-47.5-51.6-47.6h-721.9c-27.7-2.8-52.5 17.4-55.3 45.1-0.1 0.8-0.1 1.7-0.2 2.5 0.9 27.2 23.6 48.5 50.7 47.6H875.707z m-103.1-245.9c26.9-0.1 49.3-20.8 51.6-47.6-0.4-28.3-23.2-51.1-51.5-51.6h-618.9c-29.5-1.1-54.3 21.9-55.5 51.4v0.2c1.4 27.8 25.2 49.2 53 47.8 0.8 0 1.7-0.1 2.5-0.2h618.8z" p-id="15303"></path></svg>
+  </button>
 </div>
-            <!-- body end -->
 
-            <div class="trm-fixed-container" data-scroll data-scroll-sticky data-scroll-target=".locomotive-scroll__sticky-target" data-scroll-offset="-10">
-    
-        <div class="trm-fixed-btn" data-title="阅读模式" onclick="asyncFun.switchReadMode()">
-            <i class="iconfont fas fa-book-reader"></i>
-        </div>
-    
-    
-        <div class="trm-fixed-btn" data-title="单栏和双栏切换" onclick="asyncFun.switchSingleColumn()">
-            <i class="iconfont fas fa-arrows-alt-h"></i>
-        </div>
-    
-    <div id="trm-back-top" class="trm-fixed-btn" data-title="回到顶部">
-        <i class="iconfont fas fa-arrow-up"></i>
     </div>
-</div>
-          </div>
-        </div>
-      </div>
-      <!-- scroll container end -->
-
   </div>
-  <!-- app wrapper end -->
+  <div class='scripts'>
+    <script type="text/javascript">
+  const stellar = {
+    // 懒加载 css https://github.com/filamentgroup/loadCSS
+    loadCSS: (href, before, media, attributes) => {
+      var doc = window.document;
+      var ss = doc.createElement("link");
+      var ref;
+      if (before) {
+        ref = before;
+      } else {
+        var refs = (doc.body || doc.getElementsByTagName("head")[0]).childNodes;
+        ref = refs[refs.length - 1];
+      }
+      var sheets = doc.styleSheets;
+      if (attributes) {
+        for (var attributeName in attributes) {
+          if (attributes.hasOwnProperty(attributeName)) {
+            ss.setAttribute(attributeName, attributes[attributeName]);
+          }
+        }
+      }
+      ss.rel = "stylesheet";
+      ss.href = href;
+      ss.media = "only x";
+      function ready(cb) {
+        if (doc.body) {
+          return cb();
+        }
+        setTimeout(function () {
+          ready(cb);
+        });
+      }
+      ready(function () {
+        ref.parentNode.insertBefore(ss, before ? ref : ref.nextSibling);
+      });
+      var onloadcssdefined = function (cb) {
+        var resolvedHref = ss.href;
+        var i = sheets.length;
+        while (i--) {
+          if (sheets[i].href === resolvedHref) {
+            return cb();
+          }
+        }
+        setTimeout(function () {
+          onloadcssdefined(cb);
+        });
+      };
+      function loadCB() {
+        if (ss.addEventListener) {
+          ss.removeEventListener("load", loadCB);
+        }
+        ss.media = media || "all";
+      }
+      if (ss.addEventListener) {
+        ss.addEventListener("load", loadCB);
+      }
+      ss.onloadcssdefined = onloadcssdefined;
+      onloadcssdefined(loadCB);
+      return ss;
+    },
+
+    // 从 butterfly 和 volantis 获得灵感
+    loadScript: (src, opt) => new Promise((resolve, reject) => {
+      var script = document.createElement('script');
+      if (src.startsWith('/')){
+        src = stellar.config.root + src.substring(1);
+      }
+      script.src = src;
+      if (opt) {
+        for (let key of Object.keys(opt)) {
+          script[key] = opt[key]
+        }
+      } else {
+        // 默认异步，如果需要同步，第二个参数传入 {} 即可
+        script.async = true
+      }
+      script.onerror = reject
+      script.onload = script.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        script.onload = script.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(script)
+    }),
+
+    // https://github.com/jerryc127/hexo-theme-butterfly
+    jQuery: (fn) => {
+      if (typeof jQuery === 'undefined') {
+        stellar.loadScript(stellar.plugins.jQuery).then(fn)
+      } else {
+        fn()
+      }
+    }
+  };
+  stellar.version = '1.19.0';
+  stellar.github = 'https://github.com/xaoxuu/hexo-theme-stellar/tree/1.19.0';
+  stellar.config = {
+    date_suffix: {
+      just: 'Just',
+      min: 'minutes ago',
+      hour: 'hours ago',
+      day: 'days ago',
+      month: 'months ago',
+    },
+    root : '/',
+  };
+
+  // required plugins (only load if needs)
+  stellar.plugins = {
+    jQuery: 'https://gcore.jsdelivr.net/npm/jquery@3.6.2/dist/jquery.min.js'
+  };
+
+  if ('local_search') {
+    stellar.search = {};
+    stellar.search.service = 'local_search';
+    if (stellar.search.service == 'local_search') {
+      let service_obj = Object.assign({}, {"field":"all","path":"/search.json","content":true,"sort":"-date"});
+      stellar.search[stellar.search.service] = service_obj;
+    }
+  }
+
+  // stellar js
+  stellar.plugins.stellar = Object.assign({"sites":"/js/plugins/sites.js","friends":"/js/plugins/friends.js","ghinfo":"/js/plugins/ghinfo.js","timeline":"/js/plugins/timeline.js","linkcard":"/js/plugins/linkcard.js","fcircle":"/js/plugins/fcircle.js","weibo":"/js/plugins/weibo.js"});
+
+  stellar.plugins.marked = Object.assign("https://cdn.bootcdn.net/ajax/libs/marked/4.0.18/marked.min.js");
+  // optional plugins
+  if ('true' == 'true') {
+    stellar.plugins.lazyload = Object.assign({"enable":true,"js":"https://gcore.jsdelivr.net/npm/vanilla-lazyload@17.8.3/dist/lazyload.min.js","transition":"blur"});
+  }
+  if ('true' == 'true') {
+    stellar.plugins.swiper = Object.assign({"enable":true,"css":"https://unpkg.com/swiper@8.4.5/swiper-bundle.min.css","js":"https://unpkg.com/swiper@8.4.5/swiper-bundle.min.js"});
+  }
+  if ('' == 'true') {
+    stellar.plugins.scrollreveal = Object.assign({"enable":null,"js":"https://gcore.jsdelivr.net/npm/scrollreveal@4.0.9/dist/scrollreveal.min.js","distance":"8px","duration":500,"interval":100,"scale":1});
+  }
+  if ('true' == 'true') {
+    stellar.plugins.preload = Object.assign({"enable":true,"service":"flying_pages","instant_page":"https://gcore.jsdelivr.net/gh/volantis-x/cdn-volantis@4.1.2/js/instant_page.js","flying_pages":"https://gcore.jsdelivr.net/gh/gijo-varghese/flying-pages@2.1.2/flying-pages.min.js"});
+  }
+  if ('true' == 'true') {
+    stellar.plugins.fancybox = Object.assign({"enable":true,"js":"https://gcore.jsdelivr.net/npm/@fancyapps/ui@4.0/dist/fancybox.umd.js","css":"https://gcore.jsdelivr.net/npm/@fancyapps/ui@4.0/dist/fancybox.css","selector":".swiper-slide img"});
+  }
+  if ('false' == 'true') {
+    stellar.plugins.heti = Object.assign({"enable":false,"css":"https://unpkg.com/heti@0.9.2/umd/heti.min.css","js":"https://unpkg.com/heti@0.9.2/umd/heti-addon.min.js"});
+  }
+  if ('true' == 'true') {
+    stellar.plugins.copycode = Object.assign({"enable":true,"js":"/js/plugins/copycode.js","default_text":"Copy","success_text":"Copied"});
+  }
+</script>
+
+<!-- required -->
 
   
-  <!-- Plugin -->
+<script src="/js/main.js" async></script>
 
 
 
-
-    
-    
-<script src="https://npm.elemecdn.com/locomotive-scroll@4.1.4/dist/locomotive-scroll.min.js"></script>
-
-    
-<script src="https://npm.elemecdn.com/@fancyapps/ui@4.0/dist/fancybox.umd.js"></script>
-
-    
-
-    
-        <script src="/js/plugins/typing.js?v=2.0.9"></script>
-    
-
-    
-
-    <!-- 数学公式 -->
-    
-
-    <!-- 评论插件 -->
-    
-        
-
-        
-    
+<!-- optional -->
 
 
 
-<!-- CDN -->
+<!-- inject -->
 
 
-    
-
-    
-
-    
-
-
-
-
-    <!-- Service Worker -->
-    
-    <!-- baidu push -->
-    
-
-
-<script id="async-script" src="/js/main.js?v=2.0.9"></script>
-
+  </div>
 </body>
-
 </html>
