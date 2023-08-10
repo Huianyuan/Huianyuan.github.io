@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang='zh-Hans'>
+<html lang='zh-CN'>
 
 <head>
   <meta name="generator" content="Hexo 6.3.0">
@@ -29,7 +29,7 @@
 <meta property="og:url" content="https://huianyuan.github.io.git/2020/05/08/002.MySQL%E6%95%B0%E6%8D%AE%E5%BA%93%E7%9F%A5%E8%AF%86%E6%80%BB%E7%BB%93%EF%BC%88%E4%B8%80%EF%BC%89/index.html">
 <meta property="og:site_name" content="惠安苑">
 <meta property="og:description" content="知识点不常用就会忘记。这篇文章大体写了单表操作的一些常用语法，方便以后查询和回顾复习。 数据库大体概念对应关系：  数据库（DATABASE）：文件夹 表（TABLE）：文件 数据：文件中的数据 行（记录）；列（字段）  四种分类1.DDL：数据定义语言DDL（Data Definition Language）数据定义语言，用来定义数据库对象：数据库、表、列等。关键字：CREATE、DROP、AL">
-<meta property="og:locale">
+<meta property="og:locale" content="zh_CN">
 <meta property="article:published_time" content="2020-05-08T05:40:45.000Z">
 <meta property="article:modified_time" content="2023-08-09T13:13:17.753Z">
 <meta property="article:author" content="HuianYuan">
@@ -73,12 +73,12 @@
 
 <header class="header"><div class="logo-wrap"><a class="avatar" href="/about/"><div class="bg" style="opacity:0;background-image:url(https://gcore.jsdelivr.net/gh/cdn-x/placeholder@1.0.4/avatar/round/rainbow64@3x.webp);"></div><img no-lazy class="avatar" src="https://avatars.githubusercontent.com/u/34713275?v=4" onerror="javascript:this.classList.add('error');this.src='https://gcore.jsdelivr.net/gh/cdn-x/placeholder@1.0.4/image/2659360.svg';"></a><a class="title" href="/"><div class="main" ff="title">惠安苑</div><div class="sub cap">知识记录分享小站</div></a></div>
 
-<nav class="menu dis-select"></nav>
+<nav class="menu dis-select"><a class="nav-item active" href="/">笔记</a><a class="nav-item" href="/wiki/">项目</a><a class="nav-item" href="/notes/">随笔</a><a class="nav-item" href="/more/">更多</a></nav>
 </header>
 
 
 <div class="widgets">
-<widget class="widget-wrapper search"><div class="widget-body"><div class="search-wrapper" id="search"><form class="search-form"><input type="text" class="search-input" id="search-input" data-filter="/blog/" placeholder="文章搜索"><svg t="1670596976048" class="icon search-icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="2676" width="200" height="200"><path d="M938.2 832.6L723.8 618.1c-2.5-2.5-5.3-4.4-7.9-6.4 36.2-55.6 57.3-121.8 57.3-193.1C773.3 222.8 614.6 64 418.7 64S64 222.8 64 418.6c0 195.9 158.8 354.6 354.6 354.6 71.3 0 137.5-21.2 193.2-57.4 2 2.7 3.9 5.4 6.3 7.8L832.5 938c14.6 14.6 33.7 21.9 52.8 21.9 19.1 0 38.2-7.3 52.8-21.8 29.2-29.1 29.2-76.4 0.1-105.5M418.7 661.3C284.9 661.3 176 552.4 176 418.6 176 284.9 284.9 176 418.7 176c133.8 0 242.6 108.9 242.6 242.7 0 133.7-108.9 242.6-242.6 242.6" p-id="2677"></path></svg></form><div id="search-result"></div><div class="search-no-result">No Results!</div></div></div></widget>
+<widget class="widget-wrapper search"><div class="widget-body"><div class="search-wrapper" id="search"><form class="search-form"><input type="text" class="search-input" id="search-input" data-filter="/blog/" placeholder="文章搜索"><svg t="1670596976048" class="icon search-icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="2676" width="200" height="200"><path d="M938.2 832.6L723.8 618.1c-2.5-2.5-5.3-4.4-7.9-6.4 36.2-55.6 57.3-121.8 57.3-193.1C773.3 222.8 614.6 64 418.7 64S64 222.8 64 418.6c0 195.9 158.8 354.6 354.6 354.6 71.3 0 137.5-21.2 193.2-57.4 2 2.7 3.9 5.4 6.3 7.8L832.5 938c14.6 14.6 33.7 21.9 52.8 21.9 19.1 0 38.2-7.3 52.8-21.8 29.2-29.1 29.2-76.4 0.1-105.5M418.7 661.3C284.9 661.3 176 552.4 176 418.6 176 284.9 284.9 176 418.7 176c133.8 0 242.6 108.9 242.6 242.7 0 133.7-108.9 242.6-242.6 242.6" p-id="2677"></path></svg></form><div id="search-result"></div><div class="search-no-result">没有找到内容！</div></div></div></widget>
 
 
 <widget class="widget-wrapper toc single" id="data-toc"><div class="widget-header cap dis-select"><span class="name">MySQL数据库知识总结（一）-常用操作</span></div><div class="widget-body fs14"><div class="doc-tree active"><ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%95%B0%E6%8D%AE%E5%BA%93%E5%A4%A7%E4%BD%93%E6%A6%82%E5%BF%B5"><span class="toc-text">数据库大体概念</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%9B%9B%E7%A7%8D%E5%88%86%E7%B1%BB"><span class="toc-text">四种分类</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-DDL%EF%BC%9A%E6%95%B0%E6%8D%AE%E5%AE%9A%E4%B9%89%E8%AF%AD%E8%A8%80"><span class="toc-text">1.DDL：数据定义语言</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%AF%B9%E6%95%B0%E6%8D%AE%E5%BA%93%EF%BC%9ACRUD"><span class="toc-text">对数据库：CRUD</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#1-C%EF%BC%88Create%EF%BC%89%EF%BC%9A%E5%88%9B%E5%BB%BA"><span class="toc-text">1.C（Create）：创建</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#2-R%EF%BC%88Retrieve%EF%BC%89%EF%BC%9A%E6%9F%A5%E8%AF%A2"><span class="toc-text">2.R（Retrieve）：查询</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#3-U%EF%BC%88Update%EF%BC%89%EF%BC%9A%E4%BF%AE%E6%94%B9"><span class="toc-text">3.U（Update）：修改</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#4-D%EF%BC%88Delete%EF%BC%89%EF%BC%9A%E5%88%A0%E9%99%A4"><span class="toc-text">4.D（Delete）：删除</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#5-%E4%BD%BF%E7%94%A8%E6%95%B0%E6%8D%AE%E5%BA%93"><span class="toc-text">5.使用数据库</span></a></li></ol></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%AF%B9%E8%A1%A8%EF%BC%9ACRUD"><span class="toc-text">对表：CRUD</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#1-C%EF%BC%88Create%EF%BC%89%EF%BC%9A%E5%88%9B%E5%BB%BA-1"><span class="toc-text">1.C（Create）：创建</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#2-R%EF%BC%88Retrieve%EF%BC%89%EF%BC%9A%E6%9F%A5%E8%AF%A2-1"><span class="toc-text">2.R（Retrieve）：查询</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#3-U%EF%BC%88Update%EF%BC%89%EF%BC%9A%E4%BF%AE%E6%94%B9-1"><span class="toc-text">3.U（Update）：修改</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#4-D%EF%BC%88Delete%EF%BC%89%EF%BC%9A%E5%88%A0%E9%99%A4-1"><span class="toc-text">4.D（Delete）：删除</span></a></li></ol></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-DML%EF%BC%9A%E6%95%B0%E6%8D%AE%E6%93%8D%E4%BD%9C%E8%AF%AD%E8%A8%80"><span class="toc-text">2.DML：数据操作语言</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#1-%E6%B7%BB%E5%8A%A0%E6%95%B0%E6%8D%AE"><span class="toc-text">1.添加数据</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#2-%E5%88%A0%E9%99%A4%E6%95%B0%E6%8D%AE"><span class="toc-text">2.删除数据</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#3-%E4%BF%AE%E6%94%B9%E6%95%B0%E6%8D%AE"><span class="toc-text">3.修改数据</span></a></li></ol></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-DQL%EF%BC%9A%E6%95%B0%E6%8D%AE%E6%9F%A5%E8%AF%A2%E8%AF%AD%E8%A8%80"><span class="toc-text">3.DQL：数据查询语言</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#1-%E8%AF%AD%E6%B3%95"><span class="toc-text">1.语法</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#2-%E5%9F%BA%E7%A1%80%E6%9F%A5%E8%AF%A2"><span class="toc-text">2.基础查询</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#3-%E6%9D%A1%E4%BB%B6%E6%9F%A5%E8%AF%A2"><span class="toc-text">3.条件查询</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#4-%E6%8E%92%E5%BA%8F%E6%9F%A5%E8%AF%A2"><span class="toc-text">4.排序查询</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#5-%E8%81%9A%E5%90%88%E5%87%BD%E6%95%B0"><span class="toc-text">5.聚合函数</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#6-%E5%88%86%E7%BB%84%E6%9F%A5%E8%AF%A2"><span class="toc-text">6.分组查询</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#7-%E5%88%86%E9%A1%B5%E6%9F%A5%E8%AF%A2"><span class="toc-text">7.分页查询</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#8-%E7%BA%A6%E6%9D%9F"><span class="toc-text">8.约束</span></a></li></ol></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-DCL%EF%BC%9A%E6%95%B0%E6%8D%AE%E5%BA%93%E6%8E%A7%E5%88%B6%E8%AF%AD%E8%A8%80"><span class="toc-text">4.DCL：数据库控制语言</span></a></li></ol></li></ol></div></div></widget>
@@ -97,7 +97,7 @@
 
 
 
-<div class="bread-nav fs12"><div id="breadcrumb"><a class="cap breadcrumb" href="/">Home</a><span class="sep"></span><a class="cap breadcrumb" href="/">Blog</a><span class="sep"></span><a class="cap breadcrumb-link" href="/categories/%E5%90%8E%E7%AB%AF/">后端</a></div><div id="post-meta">Posted on&nbsp;<time datetime="2020-05-08T05:40:45.000Z">2020-05-08</time></div></div>
+<div class="bread-nav fs12"><div id="breadcrumb"><a class="cap breadcrumb" href="/">主页</a><span class="sep"></span><a class="cap breadcrumb" href="/">文章</a><span class="sep"></span><a class="cap breadcrumb-link" href="/categories/%E5%90%8E%E7%AB%AF/">后端</a></div><div id="post-meta">发布于&nbsp;<time datetime="2020-05-08T05:40:45.000Z">2020-05-08</time></div></div>
 
 <article class='md-text content post'>
 <h1 class="article-title"><span>MySQL数据库知识总结（一）-常用操作</span></h1>
@@ -370,17 +370,17 @@
 
 
 
-<div class="article-footer reveal fs14"><section id="license"><div class="header"><span>License</span></div><div class="body"><p>本文采用 <a target="_blank" rel="noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/">署名-非商业性使用-相同方式共享 4.0 国际</a> 许可协议，转载请注明出处。</p>
+<div class="article-footer reveal fs14"><section id="license"><div class="header"><span>许可协议</span></div><div class="body"><p>本文采用 <a target="_blank" rel="noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/">署名-非商业性使用-相同方式共享 4.0 国际</a> 许可协议，转载请注明出处。</p>
 </div></section></div>
 
 </article>
 
-<div class="related-wrap reveal" id="read-next"><section class="body"><div class="item" id="prev"><div class="note">Newer</div><a href="/2020/05/09/003.Ajax&Json/">Aja&Json</a></div><div class="item" id="next"><div class="note">Older</div><a href="/2020/04/20/001.(Algo)%E4%B8%A4%E6%95%B0%E4%B9%8B%E5%92%8C/">1.两数之和</a></div></section></div>
+<div class="related-wrap reveal" id="read-next"><section class="body"><div class="item" id="prev"><div class="note">较新文章</div><a href="/2020/05/09/003.Ajax&Json/">Aja&Json</a></div><div class="item" id="next"><div class="note">较早文章</div><a href="/2020/04/20/001.(Algo)%E4%B8%A4%E6%95%B0%E4%B9%8B%E5%92%8C/">1.两数之和</a></div></section></div>
 
 
 <div class="related-wrap reveal" id="related-posts">
     <section class='header'>
-      <div class='title cap theme'>Related Posts</div>
+      <div class='title cap theme'>您可能感兴趣的文章</div>
     </section>
     <section class='body'>
     <div class="related-posts"><a class="item" href="\2020\05\10\004.JDBC基础（一）\" title="JDBC基础（一）"><span class="title">JDBC基础（一）</span></a><a class="item" href="\2020\05\11\005.JDBC基础（二）\" title="JDBC基础（二）"><span class="title">JDBC基础（二）</span></a><a class="item" href="\2023\06\20\2023.06.20.058.MySQL锁知识\" title="MySQL锁知识"><span class="title">MySQL锁知识</span></a><a class="item" href="\2023\08\09\2023.08.09MySQL数据库自动备份\" title="MySQL自动备份"><span class="title">MySQL自动备份</span></a><a class="item" href="\2022\03\04\017.JWT简单入门\" title="JWT简单入门"><span class="title">JWT简单入门</span></a></div></section></div>
@@ -501,11 +501,11 @@
   stellar.github = 'https://github.com/xaoxuu/hexo-theme-stellar/tree/1.19.0';
   stellar.config = {
     date_suffix: {
-      just: 'Just',
-      min: 'minutes ago',
-      hour: 'hours ago',
-      day: 'days ago',
-      month: 'months ago',
+      just: '刚刚',
+      min: '分钟前',
+      hour: '小时前',
+      day: '天前',
+      month: '个月前',
     },
     root : '/',
   };

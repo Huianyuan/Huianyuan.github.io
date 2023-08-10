@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang='zh-Hans'>
+<html lang='zh-CN'>
 
 <head>
   <meta name="generator" content="Hexo 6.3.0">
@@ -29,7 +29,7 @@
 <meta property="og:url" content="https://huianyuan.github.io.git/2022/05/28/025.conda%E5%91%BD%E4%BB%A4/index.html">
 <meta property="og:site_name" content="惠安苑">
 <meta property="og:description" content="深度学习中创建多个虚拟环境，以防各版本依赖之间的冲突。 这里记录下常用的 conda 命令，还有如何在当前虚拟环境中使用 jupyter 。 查看环境查看所有已创建的环境： conda env list查看在某一环境下所安装的包：conda list -n myenv查看当前环境下的所有第三方库：conda list 创建环境conda create -n env_name package_nam">
-<meta property="og:locale">
+<meta property="og:locale" content="zh_CN">
 <meta property="article:published_time" content="2022-05-28T10:58:40.000Z">
 <meta property="article:modified_time" content="2023-08-09T13:13:33.488Z">
 <meta property="article:author" content="HuianYuan">
@@ -73,12 +73,12 @@
 
 <header class="header"><div class="logo-wrap"><a class="avatar" href="/about/"><div class="bg" style="opacity:0;background-image:url(https://gcore.jsdelivr.net/gh/cdn-x/placeholder@1.0.4/avatar/round/rainbow64@3x.webp);"></div><img no-lazy class="avatar" src="https://avatars.githubusercontent.com/u/34713275?v=4" onerror="javascript:this.classList.add('error');this.src='https://gcore.jsdelivr.net/gh/cdn-x/placeholder@1.0.4/image/2659360.svg';"></a><a class="title" href="/"><div class="main" ff="title">惠安苑</div><div class="sub cap">知识记录分享小站</div></a></div>
 
-<nav class="menu dis-select"></nav>
+<nav class="menu dis-select"><a class="nav-item active" href="/">笔记</a><a class="nav-item" href="/wiki/">项目</a><a class="nav-item" href="/notes/">随笔</a><a class="nav-item" href="/more/">更多</a></nav>
 </header>
 
 
 <div class="widgets">
-<widget class="widget-wrapper search"><div class="widget-body"><div class="search-wrapper" id="search"><form class="search-form"><input type="text" class="search-input" id="search-input" data-filter="/blog/" placeholder="文章搜索"><svg t="1670596976048" class="icon search-icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="2676" width="200" height="200"><path d="M938.2 832.6L723.8 618.1c-2.5-2.5-5.3-4.4-7.9-6.4 36.2-55.6 57.3-121.8 57.3-193.1C773.3 222.8 614.6 64 418.7 64S64 222.8 64 418.6c0 195.9 158.8 354.6 354.6 354.6 71.3 0 137.5-21.2 193.2-57.4 2 2.7 3.9 5.4 6.3 7.8L832.5 938c14.6 14.6 33.7 21.9 52.8 21.9 19.1 0 38.2-7.3 52.8-21.8 29.2-29.1 29.2-76.4 0.1-105.5M418.7 661.3C284.9 661.3 176 552.4 176 418.6 176 284.9 284.9 176 418.7 176c133.8 0 242.6 108.9 242.6 242.7 0 133.7-108.9 242.6-242.6 242.6" p-id="2677"></path></svg></form><div id="search-result"></div><div class="search-no-result">No Results!</div></div></div></widget>
+<widget class="widget-wrapper search"><div class="widget-body"><div class="search-wrapper" id="search"><form class="search-form"><input type="text" class="search-input" id="search-input" data-filter="/blog/" placeholder="文章搜索"><svg t="1670596976048" class="icon search-icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="2676" width="200" height="200"><path d="M938.2 832.6L723.8 618.1c-2.5-2.5-5.3-4.4-7.9-6.4 36.2-55.6 57.3-121.8 57.3-193.1C773.3 222.8 614.6 64 418.7 64S64 222.8 64 418.6c0 195.9 158.8 354.6 354.6 354.6 71.3 0 137.5-21.2 193.2-57.4 2 2.7 3.9 5.4 6.3 7.8L832.5 938c14.6 14.6 33.7 21.9 52.8 21.9 19.1 0 38.2-7.3 52.8-21.8 29.2-29.1 29.2-76.4 0.1-105.5M418.7 661.3C284.9 661.3 176 552.4 176 418.6 176 284.9 284.9 176 418.7 176c133.8 0 242.6 108.9 242.6 242.7 0 133.7-108.9 242.6-242.6 242.6" p-id="2677"></path></svg></form><div id="search-result"></div><div class="search-no-result">没有找到内容！</div></div></div></widget>
 
 
 <widget class="widget-wrapper toc single" id="data-toc"><div class="widget-header cap dis-select"><span class="name">conda常用命令</span></div><div class="widget-body fs14"><div class="doc-tree active"><ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%9F%A5%E7%9C%8B%E7%8E%AF%E5%A2%83"><span class="toc-text">查看环境</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%88%9B%E5%BB%BA%E7%8E%AF%E5%A2%83"><span class="toc-text">创建环境</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%BF%9B%E5%85%A5%E7%8E%AF%E5%A2%83"><span class="toc-text">进入环境</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%A6%BB%E5%BC%80%E7%8E%AF%E5%A2%83"><span class="toc-text">离开环境</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%A6%82%E9%9C%80%E8%A6%81%E6%9B%B4%E6%96%B0%E5%8C%85"><span class="toc-text">如需要更新包</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%A6%82%E9%9C%80%E8%A6%81%E5%AE%89%E8%A3%85%E5%8C%85"><span class="toc-text">如需要安装包</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%8D%B8%E8%BD%BD%E5%8C%85"><span class="toc-text">卸载包</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%9C%A8%E5%BD%93%E5%89%8D%E8%99%9A%E6%8B%9F%E7%8E%AF%E5%A2%83%E4%B8%AD%E4%BD%BF%E7%94%A8jupyter-notebook"><span class="toc-text">在当前虚拟环境中使用jupyter notebook</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%88%A0%E9%99%A4%E5%BD%93%E5%89%8D%E7%9A%84kernel"><span class="toc-text">删除当前的kernel</span></a></li></ol></li></ol></div></div></widget>
@@ -97,7 +97,7 @@
 
 
 
-<div class="bread-nav fs12"><div id="breadcrumb"><a class="cap breadcrumb" href="/">Home</a><span class="sep"></span><a class="cap breadcrumb" href="/">Blog</a><span class="sep"></span><a class="cap breadcrumb-link" href="/categories/%E6%8C%87%E5%8D%97/">指南</a></div><div id="post-meta">Posted on&nbsp;<time datetime="2022-05-28T10:58:40.000Z">2022-05-28</time></div></div>
+<div class="bread-nav fs12"><div id="breadcrumb"><a class="cap breadcrumb" href="/">主页</a><span class="sep"></span><a class="cap breadcrumb" href="/">文章</a><span class="sep"></span><a class="cap breadcrumb-link" href="/categories/%E6%8C%87%E5%8D%97/">指南</a></div><div id="post-meta">发布于&nbsp;<time datetime="2022-05-28T10:58:40.000Z">2022-05-28</time></div></div>
 
 <article class='md-text content post'>
 <h1 class="article-title"><span>conda常用命令</span></h1>
@@ -116,17 +116,17 @@
 
 
 
-<div class="article-footer reveal fs14"><section id="license"><div class="header"><span>License</span></div><div class="body"><p>本文采用 <a target="_blank" rel="noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/">署名-非商业性使用-相同方式共享 4.0 国际</a> 许可协议，转载请注明出处。</p>
+<div class="article-footer reveal fs14"><section id="license"><div class="header"><span>许可协议</span></div><div class="body"><p>本文采用 <a target="_blank" rel="noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/">署名-非商业性使用-相同方式共享 4.0 国际</a> 许可协议，转载请注明出处。</p>
 </div></section></div>
 
 </article>
 
-<div class="related-wrap reveal" id="read-next"><section class="body"><div class="item" id="prev"><div class="note">Newer</div><a href="/2022/06/05/026.%E6%AD%A3%E5%88%99%E8%A1%A8%E8%BE%BE%E5%BC%8F%E5%85%A5%E9%97%A8/">正则表达式简单用法</a></div><div class="item" id="next"><div class="note">Older</div><a href="/2022/03/29/024.%E4%BC%98%E5%85%88%E7%BA%A7%E9%98%9F%E5%88%97%EF%BC%88java%EF%BC%89/">二叉堆之优先级队列的构建</a></div></section></div>
+<div class="related-wrap reveal" id="read-next"><section class="body"><div class="item" id="prev"><div class="note">较新文章</div><a href="/2022/06/05/026.%E6%AD%A3%E5%88%99%E8%A1%A8%E8%BE%BE%E5%BC%8F%E5%85%A5%E9%97%A8/">正则表达式简单用法</a></div><div class="item" id="next"><div class="note">较早文章</div><a href="/2022/03/29/024.%E4%BC%98%E5%85%88%E7%BA%A7%E9%98%9F%E5%88%97%EF%BC%88java%EF%BC%89/">二叉堆之优先级队列的构建</a></div></section></div>
 
 
 <div class="related-wrap reveal" id="related-posts">
     <section class='header'>
-      <div class='title cap theme'>Related Posts</div>
+      <div class='title cap theme'>您可能感兴趣的文章</div>
     </section>
     <section class='body'>
     <div class="related-posts"><a class="item" href="\2022\12\06\2022.12.06.055.windows安装多python环境配置\" title="windows安装多python环境配置"><span class="title">windows安装多python环境配置</span></a><a class="item" href="\2020\05\13\006.vim插件indentline安装相关问题\" title="vim插件indentline安装相关问题"><span class="title">vim插件indentline安装相关问题</span></a></div></section></div>
@@ -247,11 +247,11 @@
   stellar.github = 'https://github.com/xaoxuu/hexo-theme-stellar/tree/1.19.0';
   stellar.config = {
     date_suffix: {
-      just: 'Just',
-      min: 'minutes ago',
-      hour: 'hours ago',
-      day: 'days ago',
-      month: 'months ago',
+      just: '刚刚',
+      min: '分钟前',
+      hour: '小时前',
+      day: '天前',
+      month: '个月前',
     },
     root : '/',
   };
